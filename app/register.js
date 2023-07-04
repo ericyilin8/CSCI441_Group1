@@ -5,10 +5,9 @@ import { Link } from "expo-router";
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Login Page
+      <Text>Register Page
       </Text>
-      <Link href="/register">Register</Link>
-      <Link href="/map">Login</Link>
+      <Link href="/">Login</Link>
       <StatusBar style="auto" />
     </View>
   );
