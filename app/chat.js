@@ -2,10 +2,13 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { Link } from "expo-router";
 import React, { useState, useCallback, useEffect } from 'react'
-import { GiftedChat } from 'react-native-gifted-chat'
+import {GiftedChat} from 'react-native-gifted-chat'
+import socketIO from 'socket.io-client';
 
 export default function App() {
   const [messages, setMessages] = useState([])
+
+  const socket = socketIO(''); 
 
   useEffect(() => {
     setMessages([
@@ -28,7 +31,6 @@ export default function App() {
     )
   }, [])
 
-
   return (
     <View style={styles.container}>
     <Link href="/map" asChild>
@@ -49,7 +51,8 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    marginBottom:40
   },
   BackLink: {
     margin: 60
