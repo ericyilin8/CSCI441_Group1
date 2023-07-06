@@ -4,12 +4,12 @@ import { Link } from "expo-router";
 import React, { useState, useCallback, useEffect } from 'react'
 import {GiftedChat} from 'react-native-gifted-chat'
 import socketIO from 'socket.io-client';
-const socket = socketIO('');
+const socket = socketIO('https://adventurous-pointed-ocean.glitch.me');
 
 export default function App() {
   const [messages, setMessages] = useState([])
   
-  socket.on('UpdateMessages', (NewMessages) => {console.log(NewMessages); setMessages(NewMessages)})
+  socket.on('UpdateMessages', (NewMessages) => {setMessages(NewMessages)})
 
   /*const onSend = useCallback((messages = []) => {
     setMessages(previousMessages =>
