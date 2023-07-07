@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { Link } from "expo-router";
+import { Entypo } from '@expo/vector-icons';
 
 export default function App() {
   return (
@@ -11,15 +12,22 @@ export default function App() {
           {    
             color: 'white',
             fontSize: 48,
-            marginBottom: 12 
+            marginTop: 40 
           } 
         }>Groups</Text>
       </View>
 
-      <Link href="/map">Map</Link>
-      <Link href="/chat">Chat</Link>
-      <Link href="/">Logout</Link>
-      
+      <View style={styles.navigation}>
+        <Link href="/map" asChild>
+          <Entypo style={styles.BackLink} name="back" size={36} color="white" />     
+        </Link>
+        <Link href="/chat" asChild>
+          <Entypo name="chat" size={36} color="white" />
+        </Link>
+        <Link href="/" asChild>
+          <Text style={{color: "white"}}>LOGOUT</Text>
+        </Link>
+      </View>
     </View>
   );
 }
@@ -28,11 +36,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    marginTop: 40
   },
   groups: {
     width: '80%',
-    height: '80%',
-    marginTop: 40,
+    height: '90%',
+  },
+  navigation: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    width: '100%',
+    paddingTop: 16,
   },
 });
