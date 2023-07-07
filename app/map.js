@@ -72,13 +72,13 @@ export default function App() {
         </View>
 
         <Link href="/group" asChild>
-          <Ionicons name="people-circle-outline" size={36} color="white" />      
+          <Ionicons name="people-circle-outline" size={36} color="#23A7E0" />      
         </Link>
         <Link href="/chat" asChild>
-          <Entypo name="chat" size={36} color="white" />
+          <Entypo name="chat" size={36} color="#23A7E0" />
         </Link>
         <Link href="/" asChild>
-          <Text style={{color: "white"}}>LOGOUT</Text>
+          <Text style={{color: "#23A7E0"}}>LOGOUT</Text>
         </Link>
       </View>
     </View>
@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     //justifyContent: 'center',
+    backgroundColor:'white',
   },
   mapContainer: {
     width: '100%',
