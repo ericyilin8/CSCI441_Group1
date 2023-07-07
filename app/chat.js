@@ -9,6 +9,7 @@ import socketIO from 'socket.io-client';
 export default function App() {
   const [messages, setMessages] = useState([])
   const [socket, setSocket] = useState(null);
+  const [ID, setID] = useState(Math.ceil(Math.random()*100));
   
   useEffect(() => {
     // Connect to the Socket.io server
@@ -44,10 +45,14 @@ export default function App() {
       messages={messages}
       onSend={msg => onSend(msg)}
       renderUsernameOnMessage
+      showUserAvatar
       user={{
-        _id: 1,
+        _id: ID,
+        name: "Andrew Carmichael",
+        avatar: 'https://www.planetware.com/wpimages/2020/02/france-in-pictures-beautiful-places-to-photograph-eiffel-tower.jpg'
       }}
     />
+    <Text>{ID}</Text>
     </View>
   );
 }
