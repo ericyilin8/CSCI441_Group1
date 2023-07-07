@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Alert, Button, TextInput, View, StyleSheet, Text } from 'react-native';
+import { Alert, Pressable, TextInput, View, StyleSheet, Text } from 'react-native';
 import { Link } from "expo-router";
 import { useState } from 'react';
 
@@ -12,7 +12,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-    
+      <Text style={styles.header}>LOGIN</Text>
       <TextInput
           value={username}
           onChangeText={(userIn) => setUsername(userIn)}
@@ -27,14 +27,13 @@ export default function App() {
           style={styles.input}
         />
         <Link href="/map" asChild>
-        <Button
-          title={'Login'}
-          style={styles.input}
-          onPress={onLogin}
-        />
+        <Pressable onPress={onLogin} style={styles.button}>
+          <Text style={styles.buttonText}>LOGIN</Text>
+        </Pressable>
         </Link>
-      <Link href="/register">Register</Link>
-      
+      {
+        //<Link href="/register">Register</Link>
+      }
       <StatusBar style="auto" />
     </View>
   );
@@ -43,7 +42,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -51,8 +49,39 @@ const styles = StyleSheet.create({
     width: 200,
     height: 44,
     padding: 10,
-    borderWidth: 1,
-    borderColor: 'black',
     marginBottom: 10,
-  }
+    marginTop: 10,
+    backgroundColor: '#F2F2F2',
+    borderRadius: 10,
+    shadowColor: 'rgba(0,0,0,0.5)',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 5,
+  },
+  header: {
+    color: 'white',
+    fontSize: 48,
+    marginBottom: 12
+  },
+  button: {
+    marginTop: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 10,
+    elevation: 3,
+    backgroundColor: '#F2F2F2',
+    shadowColor: 'rgba(0,0,0,0.5)',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 5,
+  },
+  buttonText: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.25,
+    color: 'black',
+  },
 });
