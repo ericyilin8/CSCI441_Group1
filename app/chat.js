@@ -6,9 +6,6 @@ import {GiftedChat} from 'react-native-gifted-chat'
 import socketIO from 'socket.io-client';
 import { Entypo } from '@expo/vector-icons';
 
-import { SOCKET_URL } from 'react-native-dotenv';
-
-const socket = socketIO(SOCKET_URL);
 
 export default function App() {
   const [messages, setMessages] = useState([])
@@ -41,9 +38,14 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Link href="/map" asChild>
-        <Entypo style={styles.BackLink} name="back" size={36} color="white" />
-      </Link>
+      <View style={styles.nav}>
+        <Link href="/map" asChild>
+          <Entypo name="back" size={36} color="white" />
+        </Link>
+        <Link href="/camera" asChild>
+          <Entypo name="camera" size={36} color="white" />
+        </Link>
+      </View>
       <View style={styles.chatContainer}>
         <GiftedChat
           messages={messages}
@@ -65,11 +67,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1
   },
-  BackLink: {
-    marginTop: 60,
-    marginBottom: 20,
-    marginLeft: 20,
-  },
   chatContainer: {
     backgroundColor: 'white',
     flex: 1,
@@ -78,5 +75,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 1,
     paddingBottom:40,
+  },
+  nav: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginTop: 60,
+    marginBottom: 20,
+    marginLeft: 20,
   }
 });
