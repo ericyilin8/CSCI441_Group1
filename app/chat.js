@@ -60,8 +60,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    marginBottom:40,
+    flex: 1
   },
   BackLink: {
     marginTop: 60,
@@ -75,5 +74,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 2, height: -2 },
     shadowOpacity: 0.5,
     shadowRadius: 5,
+    paddingBottom:40,
   }
 });

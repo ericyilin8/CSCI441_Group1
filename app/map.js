@@ -90,11 +90,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    //justifyContent: 'center',
   },
   mapContainer: {
     width: '100%',
-    height: '80%',
+    height: '90%',
     shadowColor: 'rgba(0,0,0,0.8)',
     shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.5,
