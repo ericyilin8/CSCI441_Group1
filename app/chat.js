@@ -4,6 +4,7 @@ import { Link } from "expo-router";
 import React, { useState, useCallback, useEffect } from 'react'
 import {GiftedChat} from 'react-native-gifted-chat'
 import socketIO from 'socket.io-client';
+import { Entypo } from '@expo/vector-icons';
 
 
 export default function App() {
@@ -37,21 +38,21 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-    <Link href="/map" asChild>
-      <Text style={styles.BackLink}>Back to map</Text>
-    </Link>
-    <View style={styles.chatContainer}>
-      <GiftedChat
-        messages={messages}
-        onSend={msg => onSend(msg)}
-        renderUsernameOnMessage
-        showUserAvatar
-        user={{
-          _id: ID,
-          name: "Andrew Carmichael",
-          avatar: 'https://www.planetware.com/wpimages/2020/02/france-in-pictures-beautiful-places-to-photograph-eiffel-tower.jpg'
-        }}
-      />
+      <Link href="/map" asChild>
+        <Entypo style={styles.BackLink} name="back" size={36} color="white" />
+      </Link>
+      <View style={styles.chatContainer}>
+        <GiftedChat
+          messages={messages}
+          onSend={msg => onSend(msg)}
+          renderUsernameOnMessage
+          showUserAvatar
+          user={{
+            _id: ID,
+            name: "Andrew Carmichael",
+            avatar: 'https://www.planetware.com/wpimages/2020/02/france-in-pictures-beautiful-places-to-photograph-eiffel-tower.jpg'
+          }}
+        />
     </View>
     </View>
   );
@@ -60,15 +61,19 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginBottom:40
+    marginBottom:40,
   },
   BackLink: {
     marginTop: 60,
-    marginBottom: 30,
-    marginLeft: 20
+    marginBottom: 20,
+    marginLeft: 20,
   },
   chatContainer: {
     backgroundColor: 'white',
-    flex: 1
+    flex: 1,
+    shadowColor: 'rgba(0,0,0,0.8)',
+    shadowOffset: { width: 2, height: -2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
   }
 });

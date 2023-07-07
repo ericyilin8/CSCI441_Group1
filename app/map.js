@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react'; // Import useRef
 import { StatusBar } from 'expo-status-bar';
-import { Alert, Button, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Link } from "expo-router";
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import socketIO from 'socket.io-client';
-import { SOCKET_URL } from 'react-native-dotenv';
+//import { SOCKET_URL } from 'react-native-dotenv';
 import { Ionicons } from '@expo/vector-icons'; 
 import { Entypo } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
-const socket = socketIO(SOCKET_URL);
+const socket = socketIO('https://adventurous-pointed-ocean.glitch.me');
 
 
 export default function App() {
@@ -42,28 +43,35 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Map Page</Text>
-      <MapView 
-        style={styles.map} 
-        ref={mapRef} // assign the ref
-      >
-        {location && (
-          <Marker
-            coordinate={{
-              latitude: location.coords.latitude,
-              longitude: location.coords.longitude,
-            }}
-            title="Your Location"
-          />
-        )}
-      </MapView>
-      {location && (
-        <Button
-          title="Zoom In"
-          onPress={handleZoomIn}
-        />
-      )}
+      <View style={styles.mapContainer}>
+        <MapView 
+          style={styles.map} 
+          ref={mapRef} // assign the ref
+        >
+          {location && (
+            <Marker
+              coordinate={{
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+              }}
+              title="Your Location"
+            />
+          )}
+        </MapView>
+      </View>
+
       <View style={styles.navigation}>
+        <View style={styles.mapButtons}>
+          {location && (
+            <Pressable
+              style={styles.mapButton}
+              onPress={handleZoomIn}
+            >
+              <Feather style={styles.mapIcon} name="zoom-in" size={36} color="white" />
+            </Pressable>
+          )}
+        </View>
+
         <Link href="/group" asChild>
           <Ionicons name="people-circle-outline" size={36} color="white" />      
         </Link>
@@ -82,19 +90,43 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    //justifyContent: 'center',
+    justifyContent: 'center',
+  },
+  mapContainer: {
+    width: '100%',
+    height: '80%',
+    shadowColor: 'rgba(0,0,0,0.8)',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    backgroundColor: 'white'
   },
   map: {
     width: '100%',
-    height: '90%',
+    height: '100%',
   },
   navigation: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     width: '100%',
-    paddingTop: 10,
-    borderTopColor: 'white',
-    borderTopWidth: 2
+    paddingTop: 16,
+  },
+  mapButton: {
+    zIndex: 999,
+  },
+  mapIcon: {
+    shadowColor: 'rgba(0,0,0,0.8)',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 5,
+  },
+  mapButtons: {
+    alignItems: 'center',
+    justifyContent: 'center', 
+    position: 'absolute',
+    top: -50,
+    left: 0,
+    width: '100%',
   }
 });
