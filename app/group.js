@@ -22,10 +22,10 @@ export default function App() {
           <Entypo style={styles.BackLink} name="back" size={36} color="white" />     
         </Link>
         <Link href="/chat" asChild>
-          <Entypo name="chat" size={36} color="white" />
+          <Entypo style={{opacity: 0}} name="chat" size={36} color="white" />
         </Link>
         <Link href="/" asChild>
-          <Text style={{color: "white"}}>LOGOUT</Text>
+          <Text style={{color: "white", opacity: 0}}>LOGOUT</Text>
         </Link>
       </View>
     </View>

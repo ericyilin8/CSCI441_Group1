@@ -97,8 +97,8 @@ const styles = StyleSheet.create({
     height: '90%',
     shadowColor: 'rgba(0,0,0,0.8)',
     shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
     backgroundColor: 'white'
   },
   map: {

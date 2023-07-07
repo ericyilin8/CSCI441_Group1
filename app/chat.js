@@ -72,8 +72,8 @@ const styles = StyleSheet.create({
     flex: 1,
     shadowColor: 'rgba(0,0,0,0.8)',
     shadowOffset: { width: 2, height: -2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
     paddingBottom:40,
   }
 });
