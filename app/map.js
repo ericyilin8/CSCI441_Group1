@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'; // Import useRef
 import { StatusBar } from 'expo-status-bar';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Link } from "expo-router";
-import MapView from 'react-native-maps';
-import { Ionicons } from '@expo/vector-icons'; 
-import { Entypo } from '@expo/vector-icons';
+
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import socketIO from 'socket.io-client';
