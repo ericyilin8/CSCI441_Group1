@@ -4,7 +4,9 @@ import { Link } from "expo-router";
 import React, { useState, useCallback, useEffect } from 'react'
 import {GiftedChat} from 'react-native-gifted-chat'
 import socketIO from 'socket.io-client';
-const socket = socketIO('');
+import { SOCKET_URL } from 'react-native-dotenv';
+
+const socket = socketIO(SOCKET_URL);
 
 export default function App() {
   const [messages, setMessages] = useState([])
