@@ -14,7 +14,7 @@ export default function App() {
   
   useEffect(() => {
     // Connect to the Socket.io server
-    const socket = socketIO('https://adventurous-pointed-ocean.glitch.me')
+    const socket = socketIO(process.env.EXPO_PUBLIC_SOCKET_URL)
     setSocket(socket)
 
     // Event listeners

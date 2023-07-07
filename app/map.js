@@ -5,13 +5,11 @@ import { Link } from "expo-router";
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import socketIO from 'socket.io-client';
-//import { SOCKET_URL } from 'react-native-dotenv';
 import { Ionicons } from '@expo/vector-icons'; 
 import { Entypo } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 
-const socket = socketIO('https://adventurous-pointed-ocean.glitch.me');
-
+const socket = socketIO(process.env.EXPO_PUBLIC_SOCKET_URL);
 
 export default function App() {
   const [location, setLocation] = useState(null);
