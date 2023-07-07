@@ -5,14 +5,20 @@ import { Link } from "expo-router";
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Group Page</Text>
-      <Link href="/map">Map</Link>
-      <Link href="/chat">Chat</Link>
-      <StatusBar style="auto" />
 
       <View style={styles.groups}>
-        <Text>Groups</Text>
+        <Text style={
+          {    
+            color: 'white',
+            fontSize: 48,
+            marginBottom: 12 
+          } 
+        }>Groups</Text>
       </View>
+
+      <Link href="/map">Map</Link>
+      <Link href="/chat">Chat</Link>
+      <Link href="/">Logout</Link>
       
     </View>
   );
@@ -21,14 +27,12 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
     marginTop: 40
   },
   groups: {
-    flex: 1,
-    backgroundColor: '#fff',
     width: '80%',
-    marginTop: 40
+    height: '80%',
+    marginTop: 40,
   },
 });

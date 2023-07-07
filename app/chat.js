@@ -40,19 +40,19 @@ export default function App() {
     <Link href="/map" asChild>
       <Text style={styles.BackLink}>Back to map</Text>
     </Link>
-    <GiftedChat
-      style={styles.GiftedChat}
-      messages={messages}
-      onSend={msg => onSend(msg)}
-      renderUsernameOnMessage
-      showUserAvatar
-      user={{
-        _id: ID,
-        name: "Andrew Carmichael",
-        avatar: 'https://www.planetware.com/wpimages/2020/02/france-in-pictures-beautiful-places-to-photograph-eiffel-tower.jpg'
-      }}
-    />
-    <Text>{ID}</Text>
+    <View style={styles.chatContainer}>
+      <GiftedChat
+        messages={messages}
+        onSend={msg => onSend(msg)}
+        renderUsernameOnMessage
+        showUserAvatar
+        user={{
+          _id: ID,
+          name: "Andrew Carmichael",
+          avatar: 'https://www.planetware.com/wpimages/2020/02/france-in-pictures-beautiful-places-to-photograph-eiffel-tower.jpg'
+        }}
+      />
+    </View>
     </View>
   );
 }
@@ -63,6 +63,12 @@ const styles = StyleSheet.create({
     marginBottom:40
   },
   BackLink: {
-    margin: 60
+    marginTop: 60,
+    marginBottom: 30,
+    marginLeft: 20
+  },
+  chatContainer: {
+    backgroundColor: 'white',
+    flex: 1
   }
 });

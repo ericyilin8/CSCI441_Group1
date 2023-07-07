@@ -8,8 +8,17 @@ import { AppStateProvider } from '../AppState';
 export default function App() {
 
   return (
-    <AppStateProvider>
-        <Slot/>
-    </AppStateProvider>
+        <AppStateProvider>
+            <View style={styles.container}>
+                <Slot/>
+            </View>
+        </AppStateProvider>
   );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: 'turquoise'
+    }
+})
