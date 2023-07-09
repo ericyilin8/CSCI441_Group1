@@ -13,6 +13,7 @@ const socket = socketIO(process.env.EXPO_PUBLIC_SOCKET_URL);
 
 export default function App() {
   const [location, setLocation] = useState(null);
+  const [sharedLocations, setSharedLocations] = useState({}); // state for shared locations
   const mapRef = useRef(); // create a ref so that map doesn't re-render on zoom
 
   useEffect(() => {
@@ -25,8 +26,14 @@ export default function App() {
 
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
+      console.log("Sending location to server:", location);
       
       socket.emit('shareLocation', location);
+
+      socket.on('updateLocations', locationData => {
+        console.log("Received location data:", locationData);
+        setSharedLocations(prevLocations => ({...prevLocations, ...locationData}));
+      });
     })();
   }, []);
 
@@ -34,8 +41,8 @@ export default function App() {
     mapRef.current.animateToRegion({
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
-      latitudeDelta: 0.0922, // determine zoom level
-      longitudeDelta: 0.0421, // determine zoom level
+      latitudeDelta: 0.08, // determine zoom level
+      longitudeDelta: 0.035, // determine zoom level
     });
   };
 
@@ -43,18 +50,23 @@ export default function App() {
     <View style={styles.container}>
       <View style={styles.mapContainer}>
         <MapView 
-          style={styles.map} 
+          style={styles.map}
           ref={mapRef} // assign the ref
         >
-          {location && (
-            <Marker
-              coordinate={{
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-              }}
-              title="Your Location"
-            />
-          )}
+          {Object.keys(sharedLocations).map(key => {
+            const userLocation = sharedLocations[key].location.coords;
+            const userName = sharedLocations[key].username;
+
+            console.log(`Mapping user ${userName} at coordinates:`, userLocation);
+            
+            return (
+              <Marker
+                key={key} // React needs a unique key for each marker
+                coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude }}
+                title={userName}
+              />
+            );
+          })}
         </MapView>
       </View>
 
