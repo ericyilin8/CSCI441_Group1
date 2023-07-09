@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'; // Import useRef
-import React, { useState, useEffect, useRef } from 'react'; // Import useRef
 import { StatusBar } from 'expo-status-bar';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Link } from "expo-router";
 import MapView, { Marker } from 'react-native-maps';
@@ -9,9 +7,6 @@ import * as Location from 'expo-location';
 import socketIO from 'socket.io-client';
 import { Ionicons } from '@expo/vector-icons'; 
 import { Entypo } from '@expo/vector-icons';
-import { Feather } from '@expo/vector-icons';
-
-const socket = socketIO(process.env.EXPO_PUBLIC_SOCKET_URL);
 import { Feather } from '@expo/vector-icons';
 
 const socket = socketIO(process.env.EXPO_PUBLIC_SOCKET_URL);
