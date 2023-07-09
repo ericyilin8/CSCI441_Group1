@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'; // Import useRef
+import React, { useState, useEffect, useRef } from 'react'; // Import useRef
 import { StatusBar } from 'expo-status-bar';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Link } from "expo-router";
 import MapView, { Marker } from 'react-native-maps';
@@ -7,6 +9,9 @@ import * as Location from 'expo-location';
 import socketIO from 'socket.io-client';
 import { Ionicons } from '@expo/vector-icons'; 
 import { Entypo } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
+
+const socket = socketIO(process.env.EXPO_PUBLIC_SOCKET_URL);
 import { Feather } from '@expo/vector-icons';
 
 const socket = socketIO(process.env.EXPO_PUBLIC_SOCKET_URL);
@@ -82,14 +87,25 @@ export default function App() {
           )}
         </View>
 
+        <View style={styles.mapButtons}>
+          {location && (
+            <Pressable
+              style={styles.mapButton}
+              onPress={handleZoomIn}
+            >
+              <Feather style={styles.mapIcon} name="zoom-in" size={36} color="white" />
+            </Pressable>
+          )}
+        </View>
+
         <Link href="/group" asChild>
-          <Ionicons name="people-circle-outline" size={36} color="white" />      
+          <Ionicons name="people-circle-outline" size={36} color="#23A7E0" />      
         </Link>
         <Link href="/chat" asChild>
-          <Entypo name="chat" size={36} color="white" />
+          <Entypo name="chat" size={36} color="#23A7E0" />
         </Link>
         <Link href="/" asChild>
-          <Text style={{color: "white"}}>LOGOUT</Text>
+          <Text style={{color: "#23A7E0"}}>LOGOUT</Text>
         </Link>
       </View>
     </View>
@@ -101,6 +117,16 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     //justifyContent: 'center',
+    backgroundColor:'white',
+  },
+  mapContainer: {
+    width: '100%',
+    height: '90%',
+    shadowColor: 'rgba(0,0,0,0.8)',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    backgroundColor: 'white'
   },
   mapContainer: {
     width: '100%',
@@ -119,6 +145,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
+    width: '100%',
+    paddingTop: 16,
+  },
+  mapButton: {
+    zIndex: 999,
+  },
+  mapIcon: {
+    shadowColor: 'rgba(0,0,0,0.8)',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 5,
+  },
+  mapButtons: {
+    alignItems: 'center',
+    justifyContent: 'center', 
+    position: 'absolute',
+    top: -50,
+    left: 0,
     width: '100%',
     paddingTop: 16,
   },
