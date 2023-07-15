@@ -7,7 +7,7 @@ const baseLocation = { latitude: 38.8735, longitude: -99.3429 }; // base locatio
 
 
 for(let i=0; i<numUsers; i++) {
-  const socket = io('http://localhost:3000');
+  const socket = io('https://adventurous-pointed-ocean.glitch.me');
 
   let location = {
     coords: {
@@ -24,6 +24,6 @@ for(let i=0; i<numUsers; i++) {
   
   let testUsername = `testUser${i}`;
 
-  console.log(`Sending location for testUser${i}:`, location);
+  console.log(`Sending location to for testUser${i}:`, location);
   socket.emit('shareLocation', location);
 }
