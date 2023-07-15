@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View, Image } from 'react-native';
 import { Link } from "expo-router";
 import React, { useState, useCallback, useEffect } from 'react'
-import {GiftedChat} from 'react-native-gifted-chat'
+import {GiftedChat, Bubble} from 'react-native-gifted-chat'
 import socketIO from 'socket.io-client';
 import { Entypo } from '@expo/vector-icons';
 
@@ -52,6 +52,7 @@ export default function App() {
           onSend={msg => onSend(msg)}
           renderUsernameOnMessage
           showUserAvatar
+          renderBubble={props => renderCustomBubble(props)}
           user={{
             _id: ID,
             name: "Andrew Carmichael",
@@ -85,3 +86,33 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   }
 });
+
+const renderCustomBubble = (props) => {
+
+  if(props.currentMessage.image){
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          left: { width: '60%'},
+          right: { width: '60%'},
+          // Add other custom styles as needed
+        }}
+        imageStyle={{
+          flex: 1,
+          borderRadius: 8,
+          height: 400,
+          width: '100%',
+        }}
+        imageProps={{
+          resizeMode: 'cover',
+          fadeDuration: 0 // Remove the fade transition effect
+          // Add other custom image props as needed
+        }}
+      />
+    );
+  }
+  else{
+    return <Bubble {...props} />
+  }
+};
