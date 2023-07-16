@@ -58,14 +58,14 @@ export default function Register() {
             style={styles.input}
           />
           <TextInput
-            value={username}
-            onChangeText={(firstNameIn) => setUsername(firstNameIn)}
+            value={firstName}
+            onChangeText={(firstNameIn) => setFirstName(firstNameIn)}
             placeholder={'First Name'}
             style={styles.input}
           />
           <TextInput
-            value={username}
-            onChangeText={(lastNameIn) => setUsername(lastNameIn)}
+            value={lastName}
+            onChangeText={(lastNameIn) => setLastName(lastNameIn)}
             placeholder={'Last Name'}
             style={styles.input}
           />
