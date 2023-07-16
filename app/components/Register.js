@@ -10,6 +10,8 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
 
   const handleRegister = async () => {
     if (password !== confirmPassword) {
@@ -17,7 +19,15 @@ export default function Register() {
       return;
     }
     try {
-      const user = await userService.register(username, email, password, phoneNumber);
+      const user = await userService.register(
+        {
+          username, 
+          email, 
+          password, 
+          phoneNumber,
+          firstName,
+          lastName
+        });
       console.log('Registration response:', user);
       Alert.alert('Registration Successful', 'You may now log in');
       router.back();
@@ -45,6 +55,18 @@ export default function Register() {
             value={username}
             onChangeText={(usernameIn) => setUsername(usernameIn)}
             placeholder={'Username'}
+            style={styles.input}
+          />
+          <TextInput
+            value={username}
+            onChangeText={(firstNameIn) => setUsername(firstNameIn)}
+            placeholder={'First Name'}
+            style={styles.input}
+          />
+          <TextInput
+            value={username}
+            onChangeText={(lastNameIn) => setUsername(lastNameIn)}
+            placeholder={'Last Name'}
             style={styles.input}
           />
           <TextInput

@@ -1,7 +1,6 @@
 export const userService = {
-  register: async (username, email, password, phone_number) => {
+  register: async (requestBody) => {
     try {
-      const requestBody = { username, email, password, phone_number };
       console.log('Sending request to:', process.env.EXPO_PUBLIC_SOCKET_URL + '/api/user')
       console.log('Sending request:', requestBody);
 
