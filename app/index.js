@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Alert, Pressable, TextInput, View, StyleSheet, Text } from 'react-native';
+import { Alert, Pressable, TextInput, View, StyleSheet, Text, Platform, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { Link } from "expo-router";
 import { useState } from 'react';
 
@@ -11,36 +11,54 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>LOGIN</Text>
-      <TextInput
-          value={username}
-          onChangeText={(userIn) => setUsername(userIn)}
-          placeholder={'Username'}
-          style={styles.input}
-        />
-        <TextInput
-          value={password}
-          onChangeText={(passwordIn) => setPassword(passwordIn)}
-          placeholder={'Password'}
-          secureTextEntry={true}
-          style={styles.input}
-        />
-        <Link href="/map" asChild>
-        <Pressable onPress={onLogin} style={styles.button}>
-          <Text style={styles.buttonText}>LOGIN</Text>
-        </Pressable>
-        </Link>
-      {
-        //<Link href="/register">Register</Link>
-      }
-      <StatusBar style="auto" />
-    </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps='handled'
+      >
+        <View style={styles.innerContainer}>
+          <Text style={styles.header}>LOGIN</Text>
+          <TextInput
+              value={username}
+              onChangeText={(userIn) => setUsername(userIn)}
+              placeholder={'Username'}
+              style={styles.input}
+            />
+            <TextInput
+              value={password}
+              onChangeText={(passwordIn) => setPassword(passwordIn)}
+              placeholder={'Password'}
+              secureTextEntry={true}
+              style={styles.input}
+            />
+            <Link href="/map" asChild>
+            <Pressable onPress={onLogin} style={styles.button}>
+              <Text style={styles.buttonText}>LOGIN</Text>
+            </Pressable>
+            </Link>
+            <Link href="/components/Register" asChild>
+              <Pressable style={styles.button}>
+                <Text style={styles.buttonText}>REGISTER</Text>
+              </Pressable>
+            </Link>
+          <StatusBar style="auto" />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1
+  },
+  innerContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
