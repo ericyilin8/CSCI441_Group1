@@ -1,14 +1,36 @@
 import { StatusBar } from 'expo-status-bar';
 import { Alert, Pressable, TextInput, View, StyleSheet, Text, Platform, ScrollView, KeyboardAvoidingView } from 'react-native';
-import { Link } from "expo-router";
+import { Link, Router } from "expo-router";
 import { useState } from 'react';
+import userService from '../services/userService';
 
 export default function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  onLogin = () => {
-  }
+  const onLogin = async () => {
+    try {
+      // Perform some basic validation before making the login request
+      if (!username || !password) {
+        Alert.alert('Error', 'Please enter both username and password.');
+        return;
+      }
+
+      // Call the login function from the userService
+      const data = await userService.login(username, password);
+
+      // Handle the successful login response here
+      console.log('Login successful:', data);
+      router.replace('/map');
+      // You can perform some action after successful login, such as navigating to a new screen or updating state.
+      // For example, you can navigate to a dashboard screen:
+      // navigation.navigate('Dashboard');
+    } catch (error) {
+      // Handle login error here
+      console.error('Login error:', error);
+      Alert.alert('Error', 'Login failed. Please try again.');
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -34,11 +56,11 @@ export default function App() {
               secureTextEntry={true}
               style={styles.input}
             />
-            <Link href="/map" asChild>
+
             <Pressable onPress={onLogin} style={styles.button}>
               <Text style={styles.buttonText}>LOGIN</Text>
             </Pressable>
-            </Link>
+
             <Link href="/components/Register" asChild>
               <Pressable style={styles.button}>
                 <Text style={styles.buttonText}>REGISTER</Text>

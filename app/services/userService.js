@@ -1,4 +1,40 @@
+import * as SecureStore from 'expo-secure-store';
+
 export const userService = {
+  login: async (username, password) => {
+    try {
+      console.log('Sending login request to:', process.env.EXPO_PUBLIC_SOCKET_URL + '/api/user/login');
+      console.log('Sending login request:', { username, password });
+
+      const requestBody = {
+        username: username,
+        password: password,
+      };
+
+      const response = await fetch(process.env.EXPO_PUBLIC_SOCKET_URL + '/api/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        console.error('HTTP status:', response.status);
+        throw new Error('Login failed');
+      }
+
+      const data = JSON.parse(response.data);
+
+      await SecureStore.setItemAsync('jwt', data.token);
+      
+      return data;
+
+    } catch (error) {
+      console.error(error); // Log full error
+      throw error;
+    }
+  },
   register: async (requestBody) => {
     try {
       console.log('Sending request to:', process.env.EXPO_PUBLIC_SOCKET_URL + '/api/user/registration')
