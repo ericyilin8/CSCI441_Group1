@@ -1,10 +1,10 @@
 export const userService = {
   register: async (requestBody) => {
     try {
-      console.log('Sending request to:', process.env.EXPO_PUBLIC_SOCKET_URL + '/api/user')
+      console.log('Sending request to:', process.env.EXPO_PUBLIC_SOCKET_URL + '/api/user/registration')
       console.log('Sending request:', requestBody);
 
-      const response = await fetch(process.env.EXPO_PUBLIC_SOCKET_URL + '/api/user', {
+      const response = await fetch(process.env.EXPO_PUBLIC_SOCKET_URL + '/api/user/registration', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
