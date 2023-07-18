@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Alert, Pressable, TextInput, View, StyleSheet, Text, Platform, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { Link, Router } from "expo-router";
 import { useState } from 'react';
-import userService from '../services/userService';
+import userService from './services/userService';
 
 export default function App() {
   const [username, setUsername] = useState('');
