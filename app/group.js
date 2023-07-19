@@ -18,10 +18,10 @@ export default function App() {
       </View>
 
       <View style={styles.navigation}>
-        <Link href="/map" asChild>
+        <Link href="/Map" asChild>
           <Entypo style={styles.BackLink} name="back" size={36} color="white" />     
         </Link>
-        <Link href="/chat" asChild>
+        <Link href="/Chat" asChild>
           <Entypo style={{opacity: 0}} name="chat" size={36} color="white" />
         </Link>
         <Link href="/" asChild>
