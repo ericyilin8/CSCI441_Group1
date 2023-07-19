@@ -22,12 +22,12 @@ export const userService = {
       const text = await response.text();
       console.log('Response text:', text);
 
+      const data = JSON.parse(text);
+
       if (!response.ok) {
         console.error('HTTP status:', response.status);
-        throw new Error('Registration failed');
+        throw new Error(data.error);
       }
-
-      const data = JSON.parse(text);
 
       await SecureStore.setItemAsync('jwt', data.token);
       
