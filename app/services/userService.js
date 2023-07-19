@@ -19,12 +19,15 @@ export const userService = {
         body: JSON.stringify(requestBody),
       });
 
+      const text = await response.text();
+      console.log('Response text:', text);
+
       if (!response.ok) {
         console.error('HTTP status:', response.status);
-        throw new Error('Login failed');
+        throw new Error('Registration failed');
       }
 
-      const data = JSON.parse(response.data);
+      const data = JSON.parse(text);
 
       await SecureStore.setItemAsync('jwt', data.token);
       

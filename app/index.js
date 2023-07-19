@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { Alert, Pressable, TextInput, View, StyleSheet, Text, Platform, ScrollView, KeyboardAvoidingView } from 'react-native';
-import { Link, Router } from "expo-router";
+import { Link, router } from "expo-router";
 import { useState } from 'react';
 import userService from './services/userService';
 
