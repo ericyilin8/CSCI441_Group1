@@ -1,19 +1,19 @@
 import { StatusBar } from 'expo-status-bar';
-import { Alert, Button, TextInput, View, StyleSheet, Text } from 'react-native';
-import { Link } from "expo-router";
-import { useState } from 'react';
+import { Alert, Button, TextInput, View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Slot } from 'expo-router';
-import { AppStateProvider } from '../AppState';
+import { AppStateProvider } from '../contexts/AppState';
+import { RouterProvider } from '../contexts/RouterContext';
 
 export default function App() {
-
-  return (
+    return (
         <AppStateProvider>
-            <View style={styles.container}>
-                <Slot/>
-            </View>
+            <RouterProvider>
+                <View style={styles.container}>
+                    <Slot/>
+                </View>
+            </RouterProvider>
         </AppStateProvider>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
