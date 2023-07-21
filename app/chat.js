@@ -12,6 +12,7 @@ export default function App() {
   const { socket } = useContext(AppStateContext);
   const [messages, setMessages] = useState([]);
   const [username, setUsername] = useState(null);
+  const [userId, setId] = useState(null);
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -19,7 +20,9 @@ export default function App() {
       if (token) {
         const decodedToken = jwtDecode(token);
         const username = decodedToken.username;
+        const userId = decodedToken.id;
         setUsername(username);
+        setId(userId);
       }
     };
   
@@ -37,6 +40,35 @@ export default function App() {
   const onSend = useCallback((msg = []) => {
     socket.emit('newMessage', msg)
   }, [socket]);
+
+  const renderCustomBubble = (props) => {
+    if(props.currentMessage.image){
+      return (
+        <Bubble
+          {...props}
+          wrapperStyle={{
+            left: { width: '60%'},
+            right: { width: '60%'},
+            // Add other custom styles as needed
+          }}
+          imageStyle={{
+            flex: 1,
+            borderRadius: 8,
+            height: 400,
+            width: '100%',
+          }}
+          imageProps={{
+            resizeMode: 'cover',
+            fadeDuration: 0 // Remove the fade transition effect
+            // Add other custom image props as needed
+          }}
+        />
+      );
+    }
+    else{
+      return <Bubble {...props} />
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -56,12 +88,12 @@ export default function App() {
           showUserAvatar
           renderBubble={props => renderCustomBubble(props)}
           user={{
-            _id: Math.floor(Math.random() * 100) + 1, // TODO: add id to JWT and build into message objects
+            _id: userId,
             name: username,
             avatar: 'https://www.planetware.com/wpimages/2020/02/france-in-pictures-beautiful-places-to-photograph-eiffel-tower.jpg'
           }}
         />
-    </View>
+      </View>
     </View>
   );
 }
@@ -88,33 +120,3 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   }
 });
-
-const renderCustomBubble = (props) => {
-
-  if(props.currentMessage.image){
-    return (
-      <Bubble
-        {...props}
-        wrapperStyle={{
-          left: { width: '60%'},
-          right: { width: '60%'},
-          // Add other custom styles as needed
-        }}
-        imageStyle={{
-          flex: 1,
-          borderRadius: 8,
-          height: 400,
-          width: '100%',
-        }}
-        imageProps={{
-          resizeMode: 'cover',
-          fadeDuration: 0 // Remove the fade transition effect
-          // Add other custom image props as needed
-        }}
-      />
-    );
-  }
-  else{
-    return <Bubble {...props} />
-  }
-};

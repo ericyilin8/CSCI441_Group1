@@ -49,7 +49,7 @@ export default function Map() {
       return () => {
         socket.off('updateLocations');
       };
-    });
+    })();
   }, []);
 
   const handleZoomIn = () => { // zoom in function
@@ -61,9 +61,20 @@ export default function Map() {
     });
   };
 
+  const getFirstSharedLocationCoords = () => {
+    const keys = Object.keys(sharedLocations);
+    if (keys.length > 0) {
+      return sharedLocations[keys[0]].location?.coords;
+    }
+    return null;
+  };
+
   if (!location) {
     return <ActivityIndicator />;
   }
+
+  const defaultLatitude = 38.874151; // Fallback coordinates if no locations to use to center map, currently FHSU student union
+  const defaultLongitude = -99.341932;
 
   return (
     <View style={styles.container}>
@@ -72,21 +83,21 @@ export default function Map() {
           style={styles.map}
           ref={mapRef} // assign the ref
           initialRegion={{
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
+            latitude: location?.coords?.latitude || getFirstSharedLocationCoords()?.latitude || defaultLatitude,
+            longitude: location?.coords?.longitude || getFirstSharedLocationCoords()?.longitude || defaultLongitude,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           }}
         >
-          {Object.keys(sharedLocations).map(key => {
-            const userLocation = sharedLocations[key].location.coords;
+          {Object.keys(sharedLocations).length > 0 && Object.keys(sharedLocations).map(key => {
+            const userLocation = sharedLocations[key].location?.coords;
             const userName = sharedLocations[key].username;
 
             console.log(`Mapping user ${userName} at coordinates:`, userLocation);
             
             return (
-              <Marker
-                key={key} // React needs a unique key for each marker
+              userLocation && <Marker
+                key={key} // React needs a unique key for each marker - TODO add logic somewhere, serverside? to verify all mapped usernames are unique
                 coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude }}
                 title={userName}
               />
@@ -106,22 +117,10 @@ export default function Map() {
             </Pressable>
           )}
         </View>
-
-        <View style={styles.mapButtons}>
-          {location && (
-            <Pressable
-              style={styles.mapButton}
-              onPress={handleZoomIn}
-            >
-              <Feather style={styles.mapIcon} name="zoom-in" size={36} color="white" />
-            </Pressable>
-          )}
-        </View>
-
-        <Link href="/Group" asChild>
+        <Link href="/group" asChild>
           <Ionicons name="people-circle-outline" size={36} color="#23A7E0" />      
         </Link>
-        <Link href="/Chat" asChild>
+        <Link href="/chat" asChild>
           <Entypo name="chat" size={36} color="#23A7E0" />
         </Link>
         <Link href="/" asChild>
