@@ -1,40 +1,74 @@
 import { StatusBar } from 'expo-status-bar';
 import { Alert, StyleSheet, Text, View, Image } from 'react-native';
 import { Link } from "expo-router";
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useContext } from 'react'
 import {GiftedChat, Bubble} from 'react-native-gifted-chat'
-import socketIO from 'socket.io-client';
 import { Entypo } from '@expo/vector-icons';
-
+import { AppStateContext } from '../contexts/AppState';
+import jwtDecode from 'jwt-decode';
+import * as SecureStore from 'expo-secure-store';
 
 export default function App() {
-  const [messages, setMessages] = useState([])
-  const [socket, setSocket] = useState(null);
-  const [ID, setID] = useState(Math.ceil(Math.random()*100));
-  
+  const { socket } = useContext(AppStateContext);
+  const [messages, setMessages] = useState([]);
+  const [username, setUsername] = useState(null);
+  const [userId, setId] = useState(null);
+
   useEffect(() => {
-    // Connect to the Socket.io server
-    const socket = socketIO(process.env.EXPO_PUBLIC_SOCKET_URL)
-    setSocket(socket)
+    const fetchToken = async () => {
+      const token = await SecureStore.getItemAsync('userToken');
+      if (token) {
+        const decodedToken = jwtDecode(token);
+        const username = decodedToken.username;
+        const userId = decodedToken.id;
+        setUsername(username);
+        setId(userId);
+      }
+    };
+  
+    fetchToken();
 
     // Event listeners
-    socket.on('UpdateMessages', (NewMessages) => {setMessages(NewMessages)})
+    socket.on('UpdateMessages', (NewMessages) => {setMessages(NewMessages)});
 
-    // Clean up the connection on component unmount
+    // Cleanup function
     return () => {
-      socket.disconnect()
+      socket.off('UpdateMessages');
     };
   }, []);
-
-  /*const onSend = useCallback((messages = []) => {
-    setMessages(previousMessages =>
-      GiftedChat.append(previousMessages, messages),
-    )
-  }, [])*/
 
   const onSend = useCallback((msg = []) => {
     socket.emit('newMessage', msg)
   }, [socket]);
+
+  const renderCustomBubble = (props) => {
+    if(props.currentMessage.image){
+      return (
+        <Bubble
+          {...props}
+          wrapperStyle={{
+            left: { width: '60%'},
+            right: { width: '60%'},
+            // Add other custom styles as needed
+          }}
+          imageStyle={{
+            flex: 1,
+            borderRadius: 8,
+            height: 400,
+            width: '100%',
+          }}
+          imageProps={{
+            resizeMode: 'cover',
+            fadeDuration: 0 // Remove the fade transition effect
+            // Add other custom image props as needed
+          }}
+        />
+      );
+    }
+    else{
+      return <Bubble {...props} />
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -54,12 +88,12 @@ export default function App() {
           showUserAvatar
           renderBubble={props => renderCustomBubble(props)}
           user={{
-            _id: ID,
-            name: "Andrew Carmichael",
+            _id: userId,
+            name: username,
             avatar: 'https://www.planetware.com/wpimages/2020/02/france-in-pictures-beautiful-places-to-photograph-eiffel-tower.jpg'
           }}
         />
-    </View>
+      </View>
     </View>
   );
 }
@@ -86,33 +120,3 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   }
 });
-
-const renderCustomBubble = (props) => {
-
-  if(props.currentMessage.image){
-    return (
-      <Bubble
-        {...props}
-        wrapperStyle={{
-          left: { width: '60%'},
-          right: { width: '60%'},
-          // Add other custom styles as needed
-        }}
-        imageStyle={{
-          flex: 1,
-          borderRadius: 8,
-          height: 400,
-          width: '100%',
-        }}
-        imageProps={{
-          resizeMode: 'cover',
-          fadeDuration: 0 // Remove the fade transition effect
-          // Add other custom image props as needed
-        }}
-      />
-    );
-  }
-  else{
-    return <Bubble {...props} />
-  }
-};

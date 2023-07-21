@@ -1,12 +1,26 @@
 import { StatusBar } from 'expo-status-bar';
 import { Alert, Pressable, TextInput, View, StyleSheet, Text, Platform, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { Link, router } from "expo-router";
-import { useState } from 'react';
-import userService from './services/userService';
+import { useState, useContext, useEffect } from 'react';
+import userService from '../services/userService';
+import io from 'socket.io-client';
+import * as SecureStore from 'expo-secure-store';
+import { AppStateContext } from '../contexts/AppState';
+import { RouterContext } from '../contexts/RouterContext';
 
 export default function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const { socket, setSocket } = useContext(AppStateContext);
+  const { loading } = useContext(RouterContext);
+
+  useEffect(() =>  {
+    if (socket && !loading && isLoggedIn) {
+      router.replace('map');
+    }
+  }, [socket, loading, isLoggedIn]);
 
   const onLogin = async () => {
     try {
@@ -19,12 +33,27 @@ export default function App() {
       // Call the login function from the userService
       const data = await userService.login(username, password);
 
+      await SecureStore.setItemAsync('userToken', data.token);
       // Handle the successful login response here
       console.log('Login successful:', data);
-      router.replace('/map');
-      // You can perform some action after successful login, such as navigating to a new screen or updating state.
-      // For example, you can navigate to a dashboard screen:
-      // navigation.navigate('Dashboard');
+    
+      // Set socketContext to token
+      const socket = io(process.env.EXPO_PUBLIC_SOCKET_URL, {
+        query: {
+          token: data.token
+        }
+      });
+
+      socket.on('connect', () => {
+        setSocket(socket);
+        setIsLoggedIn(true);
+      });
+
+      socket.on('connect_error', (err) => {
+        console.error('Connection failed:', err);
+        Alert.alert('Error', 'Connection failed. Server may be unavailable.');
+      });
+
     } catch (error) {
       // Handle login error here
       console.error('Login error:', error);
@@ -32,45 +61,50 @@ export default function App() {
     }
   };
 
-  return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps='handled'
+  if (!isLoggedIn) {
+    // Socket isn't connected, prompt user for login or registration
+    return (
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
       >
-        <View style={styles.innerContainer}>
-          <Text style={styles.header}>LOGIN</Text>
-          <TextInput
-              value={username}
-              onChangeText={(userIn) => setUsername(userIn)}
-              placeholder={'Username'}
-              style={styles.input}
-            />
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps='handled'
+        >
+          <View style={styles.innerContainer}>
+            <Text style={styles.header}>LOGIN</Text>
             <TextInput
-              value={password}
-              onChangeText={(passwordIn) => setPassword(passwordIn)}
-              placeholder={'Password'}
-              secureTextEntry={true}
-              style={styles.input}
-            />
+                value={username}
+                onChangeText={(userIn) => setUsername(userIn)}
+                placeholder={'Username'}
+                style={styles.input}
+              />
+              <TextInput
+                value={password}
+                onChangeText={(passwordIn) => setPassword(passwordIn)}
+                placeholder={'Password'}
+                secureTextEntry={true}
+                style={styles.input}
+              />
 
-            <Pressable onPress={onLogin} style={styles.button}>
-              <Text style={styles.buttonText}>LOGIN</Text>
-            </Pressable>
-
-            <Link href="/components/Register" asChild>
-              <Pressable style={styles.button}>
-                <Text style={styles.buttonText}>REGISTER</Text>
+              <Pressable onPress={onLogin} style={styles.button}>
+                <Text style={styles.buttonText}>LOGIN</Text>
               </Pressable>
-            </Link>
-          <StatusBar style="auto" />
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
-  );
+
+              <Link href="/register" asChild>
+                <Pressable style={styles.button}>
+                  <Text style={styles.buttonText}>REGISTER</Text>
+                </Pressable>
+              </Link>
+            <StatusBar style="auto" />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    );
+  } else {
+    return null; // we can replace this with loading indicator if needed.
+  }
 }
 
 const styles = StyleSheet.create({

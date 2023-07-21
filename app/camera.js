@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Pressable, Image } from 'react-native';
 import { Camera } from 'expo-camera';
-import socketIO from 'socket.io-client';
 import { Link } from "expo-router";
 import { Entypo } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { AppStateContext } from '../contexts/AppState';
 
-export default function App() {
+export default function CameraComponent() {
+  const { socket } = useContext(AppStateContext);
   const [cameraPermission, setCameraPermission] = useState(null);
   const [camera, setCamera] = useState(null);
 
@@ -18,16 +19,7 @@ export default function App() {
       setCameraPermission(status === 'granted');
     })();
 
-    // Connect to the Socket.io server
-    const socket = socketIO(process.env.EXPO_PUBLIC_SOCKET_URL)
-
     // Event listeners
-
-    // Clean up the connection on component unmount
-    return () => {
-        socket.disconnect()
-    };
-    
   }, []);
 
   const handleTakePhoto = async () => {
