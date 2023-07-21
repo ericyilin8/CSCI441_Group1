@@ -27,7 +27,7 @@ export default function CameraComponent() {
       const photo = await camera.takePictureAsync({ quality: 0.1 });
 
       uploadImageToServer(photo.uri);
-      router.replace('/Chat');
+      router.replace('/chat');
     }
   };
 
