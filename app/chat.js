@@ -28,6 +28,9 @@ export default function App() {
   
     fetchToken();
 
+    //get messages
+    socket.emit('getMessages');
+
     // Event listeners
     socket.on('UpdateMessages', (NewMessages) => {setMessages(NewMessages)});
 
