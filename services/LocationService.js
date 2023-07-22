@@ -1,8 +1,7 @@
 import * as Location from 'expo-location';
-import * as TaskManager from 'expo-task-manager';
+// import * as TaskManager from 'expo-task-manager';
 import { getDistance } from 'geolib';
 
-const LOCATION_UPDATE_TASK_NAME = 'background-location-update';
 const UPDATE_INTERVAL_IN_MS = 5 * 60 * 1000; // send location regardless of movement this often, currently 5 mins
 const UPDATE_DISTANCE_IN_M = 2; // distance moved that will trigger shareLocation event in meters
 
@@ -11,6 +10,8 @@ let lastTimeSent = null;
 let socket = null;
 
 /* Location.requestBackgroundPermissionAsync() NOT SUPPORTED BY EXPO GO LAB ENVIRONMENT
+
+const LOCATION_UPDATE_TASK_NAME = 'background-location-update';
 
 // Define the task that will be run in the background
 TaskManager.defineTask(LOCATION_UPDATE_TASK_NAME, ({ data: { locations }, error }) => {
