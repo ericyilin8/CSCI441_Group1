@@ -33,7 +33,12 @@ export default function App() {
       // Call the login function from the userService
       const data = await userService.login(username, password);
 
+      //Put some data into the state
+      //setGroup(data.user.currentGroup);
+
+      //Put some data into secure storage
       await SecureStore.setItemAsync('userToken', data.token);
+
       // Handle the successful login response here
       console.log('Login successful:', data);
     

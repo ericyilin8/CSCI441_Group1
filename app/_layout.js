@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import { Alert, Button, TextInput, View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Slot } from 'expo-router';
 import { AppStateProvider } from '../contexts/AppState';

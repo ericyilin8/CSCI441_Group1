@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import { Alert, StyleSheet, Text, View, Image } from 'react-native';
 import { Link } from "expo-router";
 import React, { useState, useCallback, useEffect, useContext } from 'react'
