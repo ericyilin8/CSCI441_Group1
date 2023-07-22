@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import { AppStateContext } from '../contexts/AppState';
+import { LocationShareContext } from '../contexts/LocationShareContext';
 import * as SecureStore from 'expo-secure-store';
 import jwtDecode from 'jwt-decode';
 
@@ -17,6 +18,15 @@ export default function Map() {
   const [sharedLocations, setSharedLocations] = useState({}); // state for shared locations
   const mapRef = useRef(); // create a ref so that map doesn't re-render on zoom
   const [username, setUsername] = useState(null);
+  const { isLocationSharingEnabled, startLocationSharing, stopLocationSharing } = useContext(LocationShareContext);
+
+  const handleLocationSharing = () => {
+    if (isLocationSharingEnabled) {
+      stopLocationSharing();
+    } else {
+      startLocationSharing(socket);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -33,11 +43,9 @@ export default function Map() {
         return;
       }
 
+      // set location to user's location - used to center map and to display marker if 
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
-      console.log("Sending location to server:", { location });
-      
-      socket.emit('shareLocation', location);
 
       // Listen for socket events
       socket.on('updateLocations', locationData => {
@@ -117,6 +125,11 @@ export default function Map() {
             </Pressable>
           )}
         </View>
+        <Pressable onPress={handleLocationSharing}>
+          {isLocationSharingEnabled
+          ? <Text style={{color: "green"}}>Location Sharing On</Text>
+          : <Text style={{color: "grey"}}>Location Sharing Off</Text>}
+        </Pressable>
         <Link href="/group" asChild>
           <Ionicons name="people-circle-outline" size={36} color="#23A7E0" />      
         </Link>
