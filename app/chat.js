@@ -28,6 +28,9 @@ export default function App() {
   
     fetchToken();
 
+    //get messages
+    socket.emit('getMessages');
+
     // Event listeners
     socket.on('UpdateMessages', (NewMessages) => {setMessages(NewMessages)});
 
@@ -90,7 +93,7 @@ export default function App() {
           user={{
             _id: userId,
             name: username,
-            avatar: 'https://www.planetware.com/wpimages/2020/02/france-in-pictures-beautiful-places-to-photograph-eiffel-tower.jpg'
+            avatar: ''
           }}
         />
       </View>

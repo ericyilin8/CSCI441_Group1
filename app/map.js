@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'; // Import useRef
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { LoadingComponent } from '../components/loading';
 import { Link } from "expo-router";
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -78,7 +79,9 @@ export default function Map() {
   };
 
   if (!location) {
-    return <ActivityIndicator />;
+    return ( 
+      <LoadingComponent />
+    )
   }
 
   const defaultLatitude = 38.874151; // Fallback coordinates if no locations to use to center map, currently FHSU student union
