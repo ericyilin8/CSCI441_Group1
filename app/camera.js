@@ -5,10 +5,9 @@ import { Link } from "expo-router";
 import { Entypo } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { AppStateContext } from '../contexts/AppState';
+import * as SecureStore from 'expo-secure-store';
 
 export default function CameraComponent() {
-  const { socket } = useContext(AppStateContext);
   const [cameraPermission, setCameraPermission] = useState(null);
   const [camera, setCamera] = useState(null);
 
@@ -24,15 +23,18 @@ export default function CameraComponent() {
 
   const handleTakePhoto = async () => {
     if (camera) {
+      // Fetch and decode the JWT
+      const token = await SecureStore.getItemAsync('userToken');
+
       const photo = await camera.takePictureAsync({ quality: 0.1 });
 
-      uploadImageToServer(photo.uri);
+      uploadImageToServer(photo.uri, token);
       router.replace('/chat');
     }
   };
 
 
-  const uploadImageToServer = async (imageUri) => {
+  const uploadImageToServer = async (imageUri, token) => {
     const formData = new FormData();
     formData.append('image', {
       uri: imageUri,
@@ -46,6 +48,7 @@ export default function CameraComponent() {
         body: formData,
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization' : token,
         },
       });
   
