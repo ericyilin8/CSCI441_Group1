@@ -15,6 +15,11 @@
       "**/*"
     ],
     "ios": {
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app needs access to share location with group members.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app needs access to share location with group members.",
+        "NSLocationAlwaysUsageDescription": "This app needs access to share location with group members."
+      },
       "supportsTablet": true
     },
     "android": {

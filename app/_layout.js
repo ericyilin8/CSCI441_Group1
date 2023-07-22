@@ -3,14 +3,17 @@ import { Alert, Button, TextInput, View, StyleSheet, ActivityIndicator } from 'r
 import { Slot } from 'expo-router';
 import { AppStateProvider } from '../contexts/AppState';
 import { RouterProvider } from '../contexts/RouterContext';
+import { LocationShareProvider } from '../contexts/LocationShareContext';
 
 export default function App() {
     return (
         <AppStateProvider>
             <RouterProvider>
-                <View style={styles.container}>
-                    <Slot/>
-                </View>
+                <LocationShareProvider>
+                    <View style={styles.container}>
+                        <Slot/>
+                    </View>
+                </LocationShareProvider>
             </RouterProvider>
         </AppStateProvider>
     );
