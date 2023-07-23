@@ -55,6 +55,9 @@ export default function Map() {
         setSharedLocations(prevLocations => ({...prevLocations, ...locationData}));
       });
 
+      //Get the locations every time component is mounted
+      socket.emit('getLocations')
+
       // Cleanup function
       return () => {
         socket.off('updateLocations');
