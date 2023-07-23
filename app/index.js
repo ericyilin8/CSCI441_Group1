@@ -12,7 +12,7 @@ export default function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  const { setCurrentGroup } = useContext(AppStateContext);
   const { socket, setSocket } = useContext(AppStateContext);
   const { loading } = useContext(RouterContext);
 
@@ -34,7 +34,7 @@ export default function App() {
       const data = await userService.login(username, password);
 
       //Put some data into the state
-      //setGroup(data.user.currentGroup);
+      setCurrentGroup(data.user.currentGroup);
 
       //Put some data into secure storage
       await SecureStore.setItemAsync('userToken', data.token);
