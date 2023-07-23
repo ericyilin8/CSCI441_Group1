@@ -1,20 +1,81 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { Link } from "expo-router";
+import React, { useState, useEffect } from 'react';
+import { Alert, View, Text, TextInput, StyleSheet, ScrollView, Platform, Image, Pressable } from 'react-native';
+import { router, Link } from "expo-router";
 import { Entypo } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import * as SecureStore from 'expo-secure-store';
+import uploadImageToServer from '../services/ImageService';
+import { groupService } from '../services/GroupService';
 
 const CreateGroup = () => {
     const [groupName, setGroupName] = useState('');
     const [avatar, setAvatar] = useState('');
 
-    const handleCreateGroup = () => {
-        // You can implement the logic to create the group here
-        // Send the group name and avatar to the server or perform any other actions
-        console.log('Creating group:', groupName, avatar);
-        // Reset the input fields after creating the group
-        setGroupName('');
-        setAvatar('');
+    useEffect(() => {
+        (async () => {
+            if (Platform.OS !== 'web') {
+                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                if (status !== 'granted') {
+                    alert('Need gallery permissions to add a group avatar.');
+                }
+            }
+        })();
+    }, []);
+
+    const handleCreateGroup = async () => {
+        try {
+            // Create form data
+            let formData = new FormData();
+            formData.append('avatar', {
+                uri: avatar,
+                type: 'image/jpeg',
+                name: 'avatar.jpg',
+            });
+
+            // Fetch JWT from Secure Store
+            const jwt = await SecureStore.getItemAsync('jwt');
+
+            // Upload avatar image and get server response
+            const imageData = await uploadImageToServer(avatar, jwt, 'avatar');
+            console.log('Avatar uploaded successfully:', imageData);
+
+            // Create group with server - leader is assigned server side using sender's JWT
+            const group = await groupService.createGroup(
+                {
+                    name: groupName,
+                    avatar: imageData.path,
+                });
+
+            // log response
+            console.log('Group Create response:', group);
+            Alert.alert('Group Created!');
+            
+            // Take user back to group view
+            router.back();
+
+            // Reset the input fields after creating the group
+            setGroupName('');
+            setAvatar('');
+
+        } catch (error) {
+            console.error('Failed to create group:', error);
+        }
     };
+
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4,3],
+            quality: 1,
+        });
+
+        console.log(result);
+
+        if (result.assets) {
+            setAvatar(result.assets[0].uri);
+        }
+    }
 
     return (
         <ScrollView
@@ -32,15 +93,22 @@ const CreateGroup = () => {
                     value={groupName}
                     onChangeText={text => setGroupName(text)}
                 />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Group Avatar URL"
-                    value={avatar}
-                    onChangeText={text => setAvatar(text)}
-                />
-                <TouchableOpacity style={styles.button} onPress={handleCreateGroup}>
+                    {avatar ? (
+                        <>
+                            <Text style={styles.headingAvatar}>Group Avatar</Text>
+                            <Image
+                            source={{ uri: avatar }}
+                            style={{ width: 200, height: 200 }}
+                            />
+                        </>
+                    ) : (
+                        <Pressable style={styles.button} onPress={pickImage}>
+                            <Text style={styles.buttonText}>Pick an image</Text>
+                        </Pressable>
+                    )}
+                <Pressable style={styles.button} onPress={handleCreateGroup}>
                     <Text style={styles.buttonText}>Create Group</Text>
-                </TouchableOpacity>
+                </Pressable>
             </View>
         </ScrollView>
     );
@@ -54,9 +122,9 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     heading: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: 'bold',
-        marginBottom: 20,
+        marginBottom: 5,
     },
     input: {
         width: '100%',
@@ -80,6 +148,12 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
         flexGrow: 1
+    },
+    headingAvatar: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 5,
+        textAlign: 'center',
     },
 });
 

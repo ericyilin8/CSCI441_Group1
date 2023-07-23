@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'; // Import useRef
 import { StatusBar } from 'expo-status-bar';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { LoadingComponent } from '../components/loading';
 import { Link } from "expo-router";
 import MapView, { Marker } from 'react-native-maps';
@@ -12,6 +12,7 @@ import { AppStateContext } from '../contexts/AppState';
 import { LocationShareContext } from '../contexts/LocationShareContext';
 import * as SecureStore from 'expo-secure-store';
 import jwtDecode from 'jwt-decode';
+import userService, { logout } from '../services/userService';
 
 export default function Map() {
   const { socket } = useContext(AppStateContext);
@@ -139,9 +140,9 @@ export default function Map() {
         <Link href="/chat" asChild>
           <Entypo name="chat" size={36} color="#23A7E0" />
         </Link>
-        <Link href="/" asChild>
+        <Pressable onPress={() => userService.logout()}>
           <Text style={{color: "#23A7E0"}}>LOGOUT</Text>
-        </Link>
+        </Pressable>
       </View>
     </View>
   );

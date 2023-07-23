@@ -1,6 +1,22 @@
 import * as SecureStore from 'expo-secure-store';
+import { router } from "expo-router"
+import { AsyncStorage } from 'react-native';
 
 export const userService = {
+  logout: async () => {
+    try {
+      // clear the JWT
+      await SecureStore.deleteItemAsync('jwt');
+
+      // we can handle any other states that need cleared here
+
+      // Navigate back to login screen'
+      router.replace('/');
+    } catch(error) {
+      console.error("Failed to delete JWT:", error);
+    }
+  },
+
   login: async (username, password) => {
     try {
       console.log('Sending login request to:', process.env.EXPO_PUBLIC_SOCKET_URL + '/api/user/login');
@@ -38,6 +54,7 @@ export const userService = {
       throw error;
     }
   },
+
   register: async (requestBody) => {
     try {
       console.log('Sending request to:', process.env.EXPO_PUBLIC_SOCKET_URL + '/api/user/register')
