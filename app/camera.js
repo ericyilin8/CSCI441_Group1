@@ -6,6 +6,7 @@ import { Entypo } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import uploadImageToServer from '../services/ImageService';
 
 export default function CameraComponent() {
   const [cameraPermission, setCameraPermission] = useState(null);
@@ -32,45 +33,6 @@ export default function CameraComponent() {
       router.replace('/chat');
     }
   };
-
-
-  const uploadImageToServer = async (imageUri, token) => {
-    const formData = new FormData();
-    formData.append('image', {
-      uri: imageUri,
-      type: 'image/jpeg', // Adjust the file type as needed
-      name: 'image.jpg', // Set a desired name for the image file
-    });
-  
-    try {
-      const response = await fetch(process.env.EXPO_PUBLIC_SOCKET_URL + '/image', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization' : token,
-        },
-      });
-  
-      if (response.ok) {
-        console.log('Image uploaded successfully');
-        // Handle success
-      } else {
-        console.error('Image upload failed');
-        // Handle error
-      }
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      // Handle error
-    }
-  };
-
-  if (cameraPermission === null) {
-    return <View />;
-  }
-  if (cameraPermission === false) {
-    return <Text>No access to camera</Text>;
-  }
 
   return (
     <View style={{ flex: 1 }}>
