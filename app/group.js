@@ -6,14 +6,14 @@ import { AppStateContext } from '../contexts/AppState';
 import * as SecureStore from 'expo-secure-store';
 
 export default function App() {
-  const [groups, setGroups] = useState([,{_id:'1', name: 'Group 1'}, {_id:2, name:'Group 2'}]); // To store the user's groups
+  const [groups, setGroups] = useState([]); // To store the user's groups
   const [showGroups, setShowGroups] = useState(true); // To toggle the visibility of the group list
   const [searchQuery, setSearchQuery] = useState(''); // To store the user search query
   const { currentGroup, setCurrentGroup } = useContext(AppStateContext);
 
   useEffect(() => {
     // Fetch the user's groups from the server when the component mounts
-    //fetchGroups();
+    fetchGroups();
   }, []);
 
   const fetchGroups = async () => {
