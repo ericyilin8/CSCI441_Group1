@@ -24,32 +24,34 @@ const CreateGroup = () => {
 
     const handleCreateGroup = async () => {
         try {
-            // Create form data
-            let formData = new FormData();
-            formData.append('avatar', {
-                uri: avatar,
-                type: 'image/jpeg',
-                name: 'avatar.jpg',
-            });
+            let imagepath = '';
+            if (avatar) {
+                // Create form data
+                let formData = new FormData();
+                formData.append('avatar', {
+                    uri: avatar,
+                    type: 'image/jpeg',
+                    name: 'avatar.jpg',
+                });
+                // Fetch JWT from Secure Store
+                const jwt = await SecureStore.getItemAsync('jwt');
 
-            // Fetch JWT from Secure Store
-            const jwt = await SecureStore.getItemAsync('jwt');
-
-            // Upload avatar image and get server response
-            const imageData = await uploadImageToServer(avatar, jwt, 'avatar');
-            console.log('Avatar uploaded successfully:', imageData);
-
+                // Upload avatar image and get server response
+                const imageData = await uploadImageToServer(avatar, jwt, 'avatar');
+                console.log('Avatar uploaded successfully:', imageData);
+                imagepath=imageData.path
+            }
             // Create group with server - leader is assigned server side using sender's JWT
             const group = await groupService.createGroup(
                 {
                     name: groupName,
-                    avatar: imageData.path,
+                    avatar: imagepath,
                 });
 
             // log response
             console.log('Group Create response:', group);
             Alert.alert('Group Created!');
-            
+
             // Take user back to group view
             router.back();
 
@@ -58,7 +60,7 @@ const CreateGroup = () => {
             setAvatar('');
 
         } catch (error) {
-            console.error('Failed to create group:', error);
+            console.error('Failed to create group:', JSON.stringify(error));
         }
     };
 
@@ -66,7 +68,7 @@ const CreateGroup = () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
-            aspect: [4,3],
+            aspect: [4, 3],
             quality: 1,
         });
 
@@ -93,19 +95,19 @@ const CreateGroup = () => {
                     value={groupName}
                     onChangeText={text => setGroupName(text)}
                 />
-                    {avatar ? (
-                        <>
-                            <Text style={styles.headingAvatar}>Group Avatar</Text>
-                            <Image
+                {avatar ? (
+                    <>
+                        <Text style={styles.headingAvatar}>Group Avatar</Text>
+                        <Image
                             source={{ uri: avatar }}
                             style={{ width: 200, height: 200 }}
-                            />
-                        </>
-                    ) : (
-                        <Pressable style={styles.button} onPress={pickImage}>
-                            <Text style={styles.buttonText}>Pick an image</Text>
-                        </Pressable>
-                    )}
+                        />
+                    </>
+                ) : (
+                    <Pressable style={styles.button} onPress={pickImage}>
+                        <Text style={styles.buttonText}>Pick an image</Text>
+                    </Pressable>
+                )}
                 <Pressable style={styles.button} onPress={handleCreateGroup}>
                     <Text style={styles.buttonText}>Create Group</Text>
                 </Pressable>
