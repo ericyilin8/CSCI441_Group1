@@ -5,7 +5,7 @@ import { LoadingComponent } from '../components/loading';
 import { Link } from "expo-router";
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { Ionicons } from '@expo/vector-icons'; 
+import { Ionicons } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import { AppStateContext } from '../contexts/AppState';
@@ -21,6 +21,7 @@ export default function Map() {
   const mapRef = useRef(); // create a ref so that map doesn't re-render on zoom
   const [username, setUsername] = useState(null);
   const { isLocationSharingEnabled, startLocationSharing, stopLocationSharing } = useContext(LocationShareContext);
+  const markerRef = useRef(null);
 
   const handleLocationSharing = () => {
     if (isLocationSharingEnabled) {
@@ -52,7 +53,7 @@ export default function Map() {
       // Listen for socket events
       socket.on('updateLocations', locationData => {
         console.log("Received location data:", locationData);
-        setSharedLocations(prevLocations => ({...prevLocations, ...locationData}));
+        setSharedLocations(prevLocations => ({ ...prevLocations, ...locationData }));
       });
 
       //Get the locations every time component is mounted
@@ -64,6 +65,13 @@ export default function Map() {
       };
     })();
   }, []);
+
+  useEffect(() => {
+    // Access the marker reference and show the callout
+    if (markerRef.current) {
+      markerRef.current.showCallout();
+    }
+  }, [sharedLocations]); // Add sharedLocations as a dependency
 
   const handleZoomIn = () => { // zoom in function
     mapRef.current.animateToRegion({
@@ -83,7 +91,7 @@ export default function Map() {
   };
 
   if (!location) {
-    return ( 
+    return (
       <LoadingComponent />
     )
   }
@@ -94,7 +102,7 @@ export default function Map() {
   return (
     <View style={styles.container}>
       <View style={styles.mapContainer}>
-        <MapView 
+        <MapView
           style={styles.map}
           ref={mapRef} // assign the ref
           initialRegion={{
@@ -109,12 +117,13 @@ export default function Map() {
             const userName = sharedLocations[key].username;
 
             console.log(`Mapping user ${userName} at coordinates:`, userLocation);
-            
+
             return (
               userLocation && <Marker
                 key={key} // React needs a unique key for each marker - TODO add logic somewhere, serverside? to verify all mapped usernames are unique
                 coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude }}
                 title={userName}
+                ref={markerRef} // Ref for the marker
               />
             );
           })}
@@ -134,17 +143,17 @@ export default function Map() {
         </View>
         <Pressable onPress={handleLocationSharing}>
           {isLocationSharingEnabled
-          ? <Text style={{color: "green"}}>Location Sharing On</Text>
-          : <Text style={{color: "grey"}}>Location Sharing Off</Text>}
+            ? <Text style={{ color: "green" }}>Location Sharing On</Text>
+            : <Text style={{ color: "grey" }}>Location Sharing Off</Text>}
         </Pressable>
         <Link href="/group" asChild>
-          <Ionicons name="people-circle-outline" size={36} color="#23A7E0" />      
+          <Ionicons name="people-circle-outline" size={36} color="#23A7E0" />
         </Link>
         <Link href="/chat" asChild>
           <Entypo name="chat" size={36} color="#23A7E0" />
         </Link>
         <Pressable onPress={() => userService.logout()}>
-          <Text style={{color: "#23A7E0"}}>LOGOUT</Text>
+          <Text style={{ color: "#23A7E0" }}>LOGOUT</Text>
         </Pressable>
       </View>
     </View>
@@ -155,7 +164,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor:'white',
+    backgroundColor: 'white',
   },
   mapContainer: {
     width: '100%',
@@ -188,7 +197,7 @@ const styles = StyleSheet.create({
   },
   mapButtons: {
     alignItems: 'center',
-    justifyContent: 'center', 
+    justifyContent: 'center',
     position: 'absolute',
     top: -50,
     left: 0,
