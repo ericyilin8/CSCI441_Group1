@@ -4,12 +4,15 @@ import { Link } from "expo-router";
 import { Entypo } from '@expo/vector-icons';
 import { AppStateContext } from '../contexts/AppState';
 import * as SecureStore from 'expo-secure-store';
+import { LoadingComponent } from '../components/loading'
 
 export default function App() {
   const [groups, setGroups] = useState([]); // To store the user's groups
   const [showGroups, setShowGroups] = useState(true); // To toggle the visibility of the group list
   const [searchQuery, setSearchQuery] = useState(''); // To store the user search query
   const { currentGroup, setCurrentGroup } = useContext(AppStateContext);
+
+  const [loading, setLoading] = useState(false); // To store the user's groups
 
   useEffect(() => {
     // Fetch the user's groups from the server when the component mounts
@@ -40,7 +43,7 @@ export default function App() {
 
   const handleAddUser = async () => {
     try {
-
+      setLoading(true);
       const body = {
         username: searchQuery,
         groupId: currentGroup,
@@ -61,12 +64,17 @@ export default function App() {
         });
       const data = await response.json();
       console.log("user added", data)
+      setLoading(false)
     } catch (error) {
       console.error('Error adding user:', error);
     }
   }
 
-  return (
+  if(loading)
+    return <LoadingComponent />
+
+  else
+    return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
       keyboardShouldPersistTaps='handled' // Closes keyboard when tapping outside of TextInput
