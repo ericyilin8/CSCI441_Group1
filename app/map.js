@@ -13,6 +13,7 @@ import { LocationShareContext } from '../contexts/LocationShareContext';
 import * as SecureStore from 'expo-secure-store';
 import jwtDecode from 'jwt-decode';
 import userService, { logout } from '../services/userService';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 export default function Map() {
   const { socket } = useContext(AppStateContext);
@@ -21,7 +22,6 @@ export default function Map() {
   const mapRef = useRef(); // create a ref so that map doesn't re-render on zoom
   const [username, setUsername] = useState(null);
   const { isLocationSharingEnabled, startLocationSharing, stopLocationSharing } = useContext(LocationShareContext);
-  const markerRef = useRef(null);
 
   const handleLocationSharing = () => {
     if (isLocationSharingEnabled) {
@@ -65,13 +65,6 @@ export default function Map() {
       };
     })();
   }, []);
-
-  useEffect(() => {
-    // Access the marker reference and show the callout
-    if (markerRef.current) {
-      markerRef.current.showCallout();
-    }
-  }, [sharedLocations]); // Add sharedLocations as a dependency
 
   const handleZoomIn = () => { // zoom in function
     mapRef.current.animateToRegion({
@@ -123,8 +116,10 @@ export default function Map() {
                 key={key} // React needs a unique key for each marker - TODO add logic somewhere, serverside? to verify all mapped usernames are unique
                 coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude }}
                 title={userName}
-                ref={markerRef} // Ref for the marker
-              />
+              >
+                <Text style={{textAlign:'center'}}>{userName}</Text>
+                <FontAwesome5 name="walking" size={24} color="blue" />
+              </Marker>
             );
           })}
         </MapView>
