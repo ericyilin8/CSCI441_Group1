@@ -38,6 +38,34 @@ export default function App() {
     setCurrentGroup(groupId);
   };
 
+  const handleAddUser = async () => {
+    try {
+
+      const body = {
+        username: searchQuery,
+        groupId: currentGroup,
+      }
+
+      console.log('adding user...', body)
+
+      const token = await SecureStore.getItemAsync('userToken');
+
+      const response = await fetch(process.env.EXPO_PUBLIC_SOCKET_URL + '/api/group/addUser',
+        {
+          method: 'PUT',
+          body: JSON.stringify(body),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token,
+          }
+        });
+      const data = await response.json();
+      console.log("user added", data)
+    } catch (error) {
+      console.error('Error adding user:', error);
+    }
+  }
+
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
@@ -53,7 +81,7 @@ export default function App() {
             value={searchQuery}
             onChangeText={text => setSearchQuery(text)}
           />
-          <TouchableOpacity style={styles.addButton} onPress={() => console.log('Add user')}>
+          <TouchableOpacity style={styles.addButton} onPress={handleAddUser}>
             <Text style={{ color: 'white', fontWeight: 'bold' }}>Add User</Text>
           </TouchableOpacity>
         </View>
