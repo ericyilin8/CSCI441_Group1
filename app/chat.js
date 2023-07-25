@@ -1,56 +1,71 @@
 import { Alert, StyleSheet, Text, View, Image } from 'react-native';
 import { Link } from "expo-router";
 import React, { useState, useCallback, useEffect, useContext } from 'react'
-import {GiftedChat, Bubble} from 'react-native-gifted-chat'
+import { GiftedChat, Bubble } from 'react-native-gifted-chat'
 import { Entypo } from '@expo/vector-icons';
 import { AppStateContext } from '../contexts/AppState';
 import jwtDecode from 'jwt-decode';
 import * as SecureStore from 'expo-secure-store';
+import io from 'socket.io-client';
 
 export default function App() {
-  const { socket } = useContext(AppStateContext);
+  const { socket, setSocket } = useContext(AppStateContext);
+  const { currentGroup, setCurrentGroup } = useContext(AppStateContext);
   const [messages, setMessages] = useState([]);
   const [username, setUsername] = useState(null);
   const [userId, setId] = useState(null);
 
+
   useEffect(() => {
-    const fetchToken = async () => {
+    (async () => {
+      
       const token = await SecureStore.getItemAsync('userToken');
-      if (token) {
-        const decodedToken = jwtDecode(token);
-        const username = decodedToken.username;
-        const userId = decodedToken.id;
-        setUsername(username);
-        setId(userId);
-      }
-    };
-  
-    fetchToken();
+      if (!token) return;
+      
+      const decodedToken = jwtDecode(token);
+      const username = decodedToken.username;
+      const userId = decodedToken.id;
+      setUsername(username);
+      setId(userId);
+      // Set socketContext to token
+      const socket = io(process.env.EXPO_PUBLIC_SOCKET_URL, {
+        query: {
+          token
+        }
+      });
 
-    //get messages
-    socket.emit('getMessages');
+      socket.on('connect', () => {
+        console.log('connected to chat!')
+        setSocket(socket);
+      })
 
-    // Event listeners
-    socket.on('UpdateMessages', (NewMessages) => {setMessages(NewMessages)});
+      //get messages
+      socket.emit('getMessages', currentGroup);
 
-    // Cleanup function
-    return () => {
-      socket.off('UpdateMessages');
-    };
+      // Event listeners
+      socket.on('UpdateMessages', (NewMessages) => { setMessages(NewMessages) });
+
+      // Cleanup function
+      return () => {
+        socket.off('UpdateMessages');
+      };
+    })()
   }, []);
 
   const onSend = useCallback((msg = []) => {
-    socket.emit('newMessage', msg)
+    msg[0].groupId = currentGroup;
+    console.log(msg[0].groupId)
+    socket.emit('newMessage', msg[0])
   }, [socket]);
 
   const renderCustomBubble = (props) => {
-    if(props.currentMessage.image){
+    if (props.currentMessage.image) {
       return (
         <Bubble
           {...props}
           wrapperStyle={{
-            left: { width: '60%'},
-            right: { width: '60%'},
+            left: { width: '60%' },
+            right: { width: '60%' },
             // Add other custom styles as needed
           }}
           imageStyle={{
@@ -67,7 +82,7 @@ export default function App() {
         />
       );
     }
-    else{
+    else {
       return <Bubble {...props} />
     }
   };
@@ -111,7 +126,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 2, height: -2 },
     shadowOpacity: 0.1,
     shadowRadius: 1,
-    paddingBottom:40,
+    paddingBottom: 40,
   },
   nav: {
     flexDirection: 'row',
