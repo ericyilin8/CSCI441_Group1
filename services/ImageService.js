@@ -1,4 +1,4 @@
-const uploadImageToServer = async (imageUri, jwt, imageType = 'message') => {
+const uploadImageToServer = async (imageUri, jwt, groupId, imageType = 'message') => {
   const formData = new FormData();
   formData.append('image', {
     uri: imageUri,
@@ -6,6 +6,7 @@ const uploadImageToServer = async (imageUri, jwt, imageType = 'message') => {
     name: 'image.jpg', // Set a desired name for the image file
   });
   formData.append('imageType', imageType);
+  formData.append('groupId', groupId);
 
   try {
     const response = await fetch(process.env.EXPO_PUBLIC_SOCKET_URL + '/api/image/save', {

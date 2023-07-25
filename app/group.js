@@ -4,13 +4,16 @@ import { Link } from "expo-router";
 import { Entypo } from '@expo/vector-icons';
 import { AppStateContext } from '../contexts/AppState';
 import * as SecureStore from 'expo-secure-store';
+import io from 'socket.io-client';
 import { LoadingComponent } from '../components/loading'
 
 export default function App() {
   const [groups, setGroups] = useState([]); // To store the user's groups
   const [showGroups, setShowGroups] = useState(true); // To toggle the visibility of the group list
   const [searchQuery, setSearchQuery] = useState(''); // To store the user search query
+
   const { currentGroup, setCurrentGroup } = useContext(AppStateContext);
+  const { socket, setSocket } = useContext(AppStateContext);
 
   const [loading, setLoading] = useState(false); // To store the user's groups
 
@@ -37,7 +40,16 @@ export default function App() {
     }
   };
 
-  const handleGroupPress = (groupId) => {
+  const handleGroupPress = async (groupId) => {
+    socket.disconnect();
+    const token = await SecureStore.getItemAsync('userToken');
+    const newSocket = io(process.env.EXPO_PUBLIC_SOCKET_URL, {
+      query: {
+        token: token,
+        groupId: groupId,
+      }
+    });
+    setSocket(newSocket);
     setCurrentGroup(groupId);
   };
 

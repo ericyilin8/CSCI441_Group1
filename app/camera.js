@@ -7,10 +7,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import uploadImageToServer from '../services/ImageService';
+import { AppStateContext } from '../contexts/AppState';
 
 export default function CameraComponent() {
   const [cameraPermission, setCameraPermission] = useState(null);
   const [camera, setCamera] = useState(null);
+  const { currentGroup } = useContext(AppStateContext);
 
   useEffect(() => {
     // Request permission to access the camera, has to be before the socket setup for some reason
@@ -29,7 +31,7 @@ export default function CameraComponent() {
 
       const photo = await camera.takePictureAsync({ quality: 0.1 });
 
-      uploadImageToServer(photo.uri, token);
+      uploadImageToServer(photo.uri, token, currentGroup);
       router.replace('/chat');
     }
   };
