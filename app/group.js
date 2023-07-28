@@ -1,19 +1,21 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, ScrollView } from 'react-native';
+import { Image, View, Text, Pressable, TextInput, StyleSheet, ScrollView } from 'react-native';
 import { Link } from "expo-router";
-import { Entypo } from '@expo/vector-icons';
+import { Entypo, AntDesign } from '@expo/vector-icons';
 import { AppStateContext } from '../contexts/AppState';
 import * as SecureStore from 'expo-secure-store';
-import io from 'socket.io-client';
 import { LoadingComponent } from '../components/loading'
+import userService from '../services/userService';
+import imageService from '../services/ImageService';
+import { AppConstants } from '../contexts/AppConstants';
 
 export default function App() {
   const [groups, setGroups] = useState([]); // To store the user's groups
   const [showGroups, setShowGroups] = useState(true); // To toggle the visibility of the group list
   const [searchQuery, setSearchQuery] = useState(''); // To store the user search query
-
-  const { currentGroup, setCurrentGroup } = useContext(AppStateContext);
-  const { socket, setSocket } = useContext(AppStateContext);
+  const [groupLoading, setGroupLoading] = useState([]);
+  const { socket, setSocket, user, currentGroup, setCurrentGroup } = useContext(AppStateContext);
+  const { LEADER_ICON_URI } = useContext(AppConstants);
 
   const [loading, setLoading] = useState(false); // To store the user's groups
 
@@ -22,35 +24,74 @@ export default function App() {
     fetchGroups();
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      // disconnect socket and clear the socket context
+      if (socket) {
+        socket.disconnect();
+        setSocket(null);
+      }
+  
+      // clear currentGroup
+      setCurrentGroup(null);
+  
+      // call userService.logout
+      await userService.logout();
+  
+    } catch (error) {
+      console.error("Failed to logout:", error);
+    }
+  };
+
   const fetchGroups = async () => {
     try {
       const token = await SecureStore.getItemAsync('userToken');
 
-      const response = await fetch(process.env.EXPO_PUBLIC_SOCKET_URL + '/api/group',
-        {
-          method: 'GET',
-          headers: {
-            Authorization: token
+      const response = await fetch(process.env.EXPO_PUBLIC_SOCKET_URL + '/api/group', 
+      {
+        method: 'GET',
+        headers: {
+          Authorization: token
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      let groups = await response.json();
+
+      // Initialize loading statuses
+      let loading = groups.map(group => group.avatar ? true : false);
+      setGroupLoading(loading);
+
+      // Download group avatar images
+      for (let i = 0; i < groups.length; i++) {
+        if (groups[i].avatar) {
+          console.log("Attempting to download from server image: ", groups[i].avatar);
+          try {
+            groups[i].avatar = await imageService.downloadImageFromServer(groups[i].avatar, token);
+            groupLoading[i] = false;
+            console.log(groups[i].name, "avatar set to", groups[i].avatar);
+          } catch (error) {
+            console.error('Error downloading group avatar:', error);
           }
-        });
-      const data = await response.json();
-      setGroups(data);
+        }
+      }
+
+      setGroupLoading(groupLoading);
+
+      setGroups(groups);
     } catch (error) {
       console.error('Error fetching groups:', error);
     }
   };
 
-  const handleGroupPress = async (groupId) => {
-    socket.disconnect();
-    const token = await SecureStore.getItemAsync('userToken');
-    const newSocket = io(process.env.EXPO_PUBLIC_SOCKET_URL, {
-      query: {
-        token: token,
-        groupId: groupId,
-      }
-    });
-    setSocket(newSocket);
-    setCurrentGroup(groupId);
+  // Sets the active group
+  const handleGroupPress = async (group) => {
+    await userService.setActiveGroup(socket, group._id); // sends group._id to server to set User.CurrentGroup in DB
+    setCurrentGroup(group); // updates the local group context
+    user.currentGroup = group._id;
   };
 
   const handleAddUser = async () => {
@@ -58,7 +99,7 @@ export default function App() {
       setLoading(true);
       const body = {
         username: searchQuery,
-        groupId: currentGroup,
+        groupId: user.currentGroup,
       }
 
       console.log('adding user...', body)
@@ -75,10 +116,12 @@ export default function App() {
           }
         });
       const data = await response.json();
-      console.log("user added", data)
+      console.log("User added", data)
       setLoading(false)
     } catch (error) {
       console.error('Error adding user:', error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -101,29 +144,29 @@ export default function App() {
             value={searchQuery}
             onChangeText={text => setSearchQuery(text)}
           />
-          <TouchableOpacity style={styles.addButton} onPress={handleAddUser}>
+          <Pressable style={styles.addButton} onPress={handleAddUser}>
             <Text style={{ color: 'white', fontWeight: 'bold' }}>Add User</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
 
         <View style={styles.groups}>
           <Text style={{ color: 'white', fontSize: 48, marginTop: 8 }}>
             Groups
-            <TouchableOpacity onPress={() => setShowGroups(!showGroups)}>
+            <Pressable onPress={() => setShowGroups(!showGroups)}>
               <Entypo
                 name={showGroups ? 'chevron-down' : 'chevron-up'}
                 size={36}
                 color="white"
               />
-            </TouchableOpacity>
+            </Pressable>
           </Text>
           {showGroups && (
-          <ScrollView style={{height: 400}}>
-            {groups.map((group) => (
-              <TouchableOpacity
+          <View style={styles.groupsContainer}>
+            {groups.map((group, i) => (
+              <Pressable
                 key={group._id}
-                onPress={() => handleGroupPress(group._id)}
+                onPress={() => handleGroupPress(group)}
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -137,41 +180,78 @@ export default function App() {
                       height: 12,
                       borderRadius: 6,
                       marginRight: 8,
-                      backgroundColor: currentGroup === group._id ? 'blue' : 'transparent',
+                      backgroundColor: currentGroup && currentGroup._id === group._id ? 'blue' : 'transparent',
                     }}
                   />
                 </View>
-                <Text
-                  style={{
-                    color: currentGroup === group._id ? 'blue' : 'white',
-                    fontSize: 28,
-                  }}
-                >
-                  {group.name}
-                </Text>
-              </TouchableOpacity>
+                {groupLoading[i] ? (
+                  <LoadingComponent />
+                ) : (
+                  group.avatar && <Image source={{ uri: group.avatar }} style={ styles.groupAvatar }/>
+                )}
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '50%' }}>
+                  <Text
+                    style={{
+                      color: currentGroup && currentGroup._id === group._id ? 'blue' : 'white',
+                      fontSize: 24,
+                      marginLeft: 10, // added to space text from avatar
+                    }}
+                  >
+                    {group.name}
+                  </Text>
+                  {group.leader === user._id && (
+                    <Pressable
+                      style={({ pressed }) => [
+                        {
+                          backgroundColor: pressed
+                          ? 'rgba(0, 0, 0, 0.1)'
+                          : 'transparent',
+                        },
+                        styles.leaderIconButton,
+                      ]}
+                      onPress={() => {
+                        // handle press here
+                      }}
+                    >
+                      <Image
+                        source={ LEADER_ICON_URI }
+                        style={styles.leaderIcon}
+                        resizeMode="contain"
+                      />
+                    </Pressable>
+                  )}
+                </View>
+              </Pressable>
             ))}
-          </ScrollView>
+          </View>
         )}
 
         </View>
 
         <Link href="/creategroup" asChild>
-          <TouchableOpacity style={styles.GroupButton} onPress={() => console.log('Create group')}>
+          <Pressable style={styles.GroupButton} onPress={() => console.log('Create group')}>
             <Text style={styles.GroupButtonText}>New Group</Text>
-          </TouchableOpacity>
+          </Pressable>
         </Link>
 
         <View style={styles.navigation}>
           <Link href="/map" asChild>
-            <Entypo style={styles.BackLink} name="back" size={36} color="white" />
+            <AntDesign
+              style={{ color: "#23A7E0", opacity: currentGroup && currentGroup._id ? 1 : 0.2 }}
+              name="enviroment"
+              size={36}
+            />
           </Link>
           <Link href="/chat" asChild>
-            <Entypo style={{ opacity: 0 }} name="chat" size={36} color="white" />
+            <Entypo
+              style={{ color: "#23A7E0", opacity: currentGroup && currentGroup._id ? 1 : 0.2 }}
+              name="chat"
+              size={36}
+            />
           </Link>
-          <Link href="/" asChild>
-            <Text style={{ color: "white", opacity: 0 }}>LOGOUT</Text>
-          </Link>
+          <Pressable onPress={handleLogout}>
+            <Text style={{ color: "#23A7E0" }}>LOGOUT</Text>
+          </Pressable>
         </View>
       </View>
     </ScrollView>
@@ -181,18 +261,20 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   groups: {
     width: '80%',
-    height: '65%',
   },
   navigation: {
+    height: 50,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     width: '100%',
-    paddingTop: 16,
+    backgroundColor: '#fff',
   },
   addUserSection: {
     flexDirection: 'row',
@@ -236,7 +318,29 @@ const styles = StyleSheet.create({
     letterSpacing: 0.25,
     color: 'black',
   },
+  groupAvatar: {
+    width: 50,
+    height: 50,
+  },
   scrollContainer: {
     flexGrow: 1
   },
+  leaderIconButton: {
+    marginLeft: 10,
+    padding: 5,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: 'white',
+    width: 30,
+    height: 30,
+  },
+  
+  leaderIcon: {
+    width: '100%',
+    height: '100%',
+  },
+  groupsContainer: {
+    borderBottomWidth: 5,
+    borderColor: '#fff',
+  }
 });

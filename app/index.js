@@ -12,13 +12,14 @@ export default function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { setCurrentGroup } = useContext(AppStateContext);
+  const [currentGroup, setCurrentGroup] = useState(null);
   const { socket, setSocket } = useContext(AppStateContext);
+  const { setUser } = useContext(AppStateContext);
   const { loading } = useContext(RouterContext);
 
   useEffect(() =>  {
     if (socket && !loading && isLoggedIn) {
-      router.replace('map');
+      router.replace('group');
     }
   }, [socket, loading, isLoggedIn]);
 
@@ -33,8 +34,8 @@ export default function App() {
       // Call the login function from the userService
       const data = await userService.login(username, password);
 
-      //Put some data into the state
-      setCurrentGroup(data.user.currentGroup);
+      // set user context
+      setUser(data.user);
 
       //Put some data into secure storage
       await SecureStore.setItemAsync('userToken', data.token);

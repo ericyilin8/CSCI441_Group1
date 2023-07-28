@@ -2,19 +2,16 @@ import { Alert, StyleSheet, Text, View, Image } from 'react-native';
 import { Link } from "expo-router";
 import React, { useState, useCallback, useEffect, useContext } from 'react'
 import { GiftedChat, Bubble } from 'react-native-gifted-chat'
-import { Entypo } from '@expo/vector-icons';
+import { Entypo, Ionicons, AntDesign } from '@expo/vector-icons';
 import { AppStateContext } from '../contexts/AppState';
 import jwtDecode from 'jwt-decode';
 import * as SecureStore from 'expo-secure-store';
-import io from 'socket.io-client';
 
-export default function App() {
-  const { socket, setSocket } = useContext(AppStateContext);
-  const { currentGroup, setCurrentGroup } = useContext(AppStateContext);
+export default function Chat() {
+  const { socket, setSocket, currentGroup, user } = useContext(AppStateContext);
   const [messages, setMessages] = useState([]);
   const [username, setUsername] = useState(null);
   const [userId, setId] = useState(null);
-
 
   useEffect(() => {
     (async () => {
@@ -27,12 +24,6 @@ export default function App() {
       const userId = decodedToken.id;
       setUsername(username);
       setId(userId);
-      // Set socketContext to token
-      const socket = io(process.env.EXPO_PUBLIC_SOCKET_URL, {
-        query: {
-          token
-        }
-      });
 
       socket.on('connect', () => {
         console.log('connected to chat!')
@@ -40,20 +31,23 @@ export default function App() {
       })
 
       //get messages
-      socket.emit('getMessages', currentGroup);
+      socket.emit('getMessages', user.currentGroup);
 
       // Event listeners
-      socket.on('UpdateMessages', (NewMessages) => { setMessages(NewMessages) });
+      socket.on('UpdateMessages', (NewMessages) => { 
+        setMessages(NewMessages)
+        console.log(NewMessages);
+      });
 
       // Cleanup function
       return () => {
         socket.off('UpdateMessages');
       };
     })()
-  }, []);
+  }, [currentGroup]);
 
   const onSend = useCallback((msg = []) => {
-    msg[0].groupId = currentGroup;
+    msg[0].groupId = user.currentGroup;
     console.log(msg[0].groupId)
     socket.emit('newMessage', msg[0])
   }, [socket]);
@@ -68,17 +62,7 @@ export default function App() {
             right: { width: '60%' },
             // Add other custom styles as needed
           }}
-          imageStyle={{
-            flex: 1,
-            borderRadius: 8,
-            height: 400,
-            width: '100%',
-          }}
-          imageProps={{
-            resizeMode: 'cover',
-            fadeDuration: 0 // Remove the fade transition effect
-            // Add other custom image props as needed
-          }}
+          renderMessageImage={renderMessageImage}
         />
       );
     }
@@ -86,12 +70,31 @@ export default function App() {
       return <Bubble {...props} />
     }
   };
+  
+  const renderMessageImage = (props) => {
+    console.log(props);
+    return (
+      <Image
+        source={{ uri: props.currentMessage.image }}
+        style={{
+          flex: 1,
+          borderRadius: 8,
+          height: 400,
+          width: '100%',
+          resizeMode: 'cover',
+        }}
+      />
+    );
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.nav}>
+        <Link href="/group" asChild>
+          <Ionicons name="people-circle-outline" size={36} color="#fff" />
+        </Link>
         <Link href="/map" asChild>
-          <Entypo name="back" size={36} color="white" />
+        <AntDesign style={{ color: "#fff", opacity: 1 }} name="enviroment" size={36} />
         </Link>
         <Link href="/camera" asChild>
           <Entypo name="camera" size={36} color="white" />

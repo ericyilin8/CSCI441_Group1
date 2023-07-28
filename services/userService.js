@@ -1,6 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
 import { router } from "expo-router"
-import { AsyncStorage } from 'react-native';
 
 export const userService = {
   logout: async () => {
@@ -81,6 +80,15 @@ export const userService = {
 
     } catch (error) {
       console.error(error); // Log full error
+      throw error;
+    }
+  },
+
+  setActiveGroup: async (socket, groupId) => {
+    try {
+      socket.emit('setActiveGroup', groupId);
+    } catch (error) {
+      console.error('Error setting active group:', error);
       throw error;
     }
   },

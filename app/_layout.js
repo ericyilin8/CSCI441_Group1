@@ -3,15 +3,18 @@ import { Slot } from 'expo-router';
 import { AppStateProvider } from '../contexts/AppState';
 import { RouterProvider } from '../contexts/RouterContext';
 import { LocationShareProvider } from '../contexts/LocationShareContext';
+import { AppConstantsProvider } from '../contexts/AppConstants';
 
 export default function App() {
     return (
         <AppStateProvider>
             <RouterProvider>
                 <LocationShareProvider>
-                    <View style={styles.container}>
-                        <Slot/>
-                    </View>
+                    <AppConstantsProvider>
+                        <View style={styles.container}>
+                            <Slot/>
+                        </View>
+                    </AppConstantsProvider>
                 </LocationShareProvider>
             </RouterProvider>
         </AppStateProvider>

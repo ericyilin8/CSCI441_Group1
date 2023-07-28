@@ -4,7 +4,7 @@ import { router, Link } from "expo-router";
 import { Entypo } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as SecureStore from 'expo-secure-store';
-import uploadImageToServer from '../services/ImageService';
+import imageService from '../services/ImageService';
 import { groupService } from '../services/GroupService';
 
 const CreateGroup = () => {
@@ -37,8 +37,8 @@ const CreateGroup = () => {
                 const jwt = await SecureStore.getItemAsync('jwt');
 
                 // Upload avatar image and get server response
-                const imageData = await uploadImageToServer(avatar, jwt, 'avatar');
-                console.log('Avatar uploaded successfully:', imageData);
+                const imageData = await imageService.uploadImageToServer(avatar, jwt, 'avatar');
+                console.log('Group avatar uploaded successfully:', imageData);
                 imagepath=imageData.path
             }
             // Create group with server - leader is assigned server side using sender's JWT
