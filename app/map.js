@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'; // Import useRef
 import { StatusBar } from 'expo-status-bar';
-import { Alert, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, Image, View } from 'react-native';
 import { LoadingComponent } from '../components/loading';
 import { Link } from "expo-router";
 import MapView, { Marker } from 'react-native-maps';
@@ -13,21 +13,40 @@ import { LocationShareContext } from '../contexts/LocationShareContext';
 import * as SecureStore from 'expo-secure-store';
 import jwtDecode from 'jwt-decode';
 import userService, { logout } from '../services/userService';
-import { FontAwesome5 } from '@expo/vector-icons';
 
 export default function Map() {
-  const { socket } = useContext(AppStateContext);
+  const { socket, setSocket, currentGroup, setCurrentGroup, user } = useContext(AppStateContext);
   const [location, setLocation] = useState(null);
   const [sharedLocations, setSharedLocations] = useState({}); // state for shared locations
   const mapRef = useRef(); // create a ref so that map doesn't re-render on zoom
   const [username, setUsername] = useState(null);
   const { isLocationSharingEnabled, startLocationSharing, stopLocationSharing } = useContext(LocationShareContext);
+  const avatarUrl = require('../images/avatar.jpg');
 
   const handleLocationSharing = () => {
     if (isLocationSharingEnabled) {
       stopLocationSharing();
     } else {
       startLocationSharing(socket);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      // disconnect socket and clear the socket context
+      if (socket) {
+        socket.disconnect();
+        setSocket(null);
+      }
+  
+      // clear currentGroup
+      setCurrentGroup(null);
+  
+      // call userService.logout
+      await userService.logout();
+  
+    } catch (error) {
+      console.error("Failed to logout:", error);
     }
   };
 
@@ -94,6 +113,16 @@ export default function Map() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Image source={{ uri: currentGroup?.avatar }} style ={styles.groupAvatar} />
+        <Text style={styles.groupName}>{currentGroup?.name}</Text>
+        <Pressable onPress={handleLocationSharing}>
+          {isLocationSharingEnabled
+            ? <Text style={styles.locationSharingStatusOn}>Location Sharing On</Text>
+            : <Text style={styles.locationSharingStatusOff}>Location Sharing Off</Text>
+          }
+        </Pressable>
+      </View>
       <View style={styles.mapContainer}>
         <MapView
           style={styles.map}
@@ -112,14 +141,38 @@ export default function Map() {
             console.log(`Mapping user ${userName} at coordinates:`, userLocation);
 
             return (
-              userLocation && <Marker
-                key={key} // React needs a unique key for each marker - TODO add logic somewhere, serverside? to verify all mapped usernames are unique
-                coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude }}
-                title={userName}
-              >
-                <Text style={{textAlign:'center'}}>{userName}</Text>
-                <FontAwesome5 name="walking" size={24} color="blue" />
-              </Marker>
+              userLocation && (
+                <Marker
+                  key={key}
+                  coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude }}
+                  title={userName}
+                >
+                  <View style={{alignItems: 'center', marginBottom: 65}}>
+                    <View style={{alignItems: 'center', backgroundColor: 'white', borderRadius: 5, padding: 5}}>
+                      <Text style={{textAlign:'center', fontWeight: 'bold'}}>{userName}</Text>
+                      <Image
+                        source={avatarUrl}
+                        style={{ width: 40, height: 40, borderRadius: 20}}
+                      />
+                    </View>
+                    <View style={{
+                      width: 0,
+                      height: 0,
+                      backgroundColor: 'transparent',
+                      borderStyle: 'solid',
+                      borderLeftWidth: 5,
+                      borderRightWidth: 5,
+                      borderBottomWidth: 25,
+                      borderLeftColor: 'transparent',
+                      borderRightColor: 'transparent',
+                      borderBottomColor: 'black',
+                      transform: [
+                        {rotate: '180deg'}
+                      ]
+                      }}></View>
+                  </View>
+                </Marker>
+              )
             );
           })}
         </MapView>
@@ -136,18 +189,13 @@ export default function Map() {
             </Pressable>
           )}
         </View>
-        <Pressable onPress={handleLocationSharing}>
-          {isLocationSharingEnabled
-            ? <Text style={{ color: "green" }}>Location Sharing On</Text>
-            : <Text style={{ color: "grey" }}>Location Sharing Off</Text>}
-        </Pressable>
         <Link href="/group" asChild>
           <Ionicons name="people-circle-outline" size={36} color="#23A7E0" />
         </Link>
         <Link href="/chat" asChild>
           <Entypo name="chat" size={36} color="#23A7E0" />
         </Link>
-        <Pressable onPress={() => userService.logout()}>
+        <Pressable onPress={handleLogout}>
           <Text style={{ color: "#23A7E0" }}>LOGOUT</Text>
         </Pressable>
       </View>
@@ -160,26 +208,28 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: 'white',
+    justifyContent: 'space-between',
   },
   mapContainer: {
+    flex: 5,
     width: '100%',
-    height: '90%',
     shadowColor: 'rgba(0,0,0,0.8)',
     shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 1,
-    backgroundColor: 'white'
+    backgroundColor: 'white',
   },
   map: {
     width: '100%',
     height: '100%',
   },
   navigation: {
+    height: 50,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     width: '100%',
-    paddingTop: 16,
+
   },
   mapButton: {
     zIndex: 999,
@@ -197,6 +247,34 @@ const styles = StyleSheet.create({
     top: -50,
     left: 0,
     width: '100%',
-    paddingTop: 16,
+    paddingTop: 10,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    //padding: 16,
+    backgroundColor: '#fff', // or whatever color you prefer
+    marginTop: 25,
+    borderWidth: 5,
+    borderColor: '#fff',
+    paddingRight: 5,
+  },
+  groupAvatar: {
+    width: 50,
+    height: 50,
+  },
+  groupName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    flex: 1, // this makes the text take up the remaining space
+    textAlign: 'center', // this centers the text horizontally
+  },
+  locationSharingStatusOn: {
+    color: 'green',
+  },
+  locationSharingStatusOff: {
+    color: 'grey',
   },
 });
