@@ -12,7 +12,7 @@ import { AppStateContext } from '../contexts/AppState';
 export default function CameraComponent() {
   const [cameraPermission, setCameraPermission] = useState(null);
   const [camera, setCamera] = useState(null);
-  const { user } = useContext(AppStateContext);
+  const { currentGroup } = useContext(AppStateContext);
 
   useEffect(() => {
     // Request permission to access the camera, has to be before the socket setup for some reason
@@ -30,8 +30,7 @@ export default function CameraComponent() {
       const token = await SecureStore.getItemAsync('userToken');
 
       const photo = await camera.takePictureAsync({ quality: 0.1 });
-
-      imageService.uploadImageToServer(photo.uri, token, 'message', user.currentGroup);
+      imageService.uploadImageToServer(photo.uri, token, 'message', currentGroup._id);
       router.replace('/chat');
     }
   };

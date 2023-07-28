@@ -10,7 +10,7 @@ export const imageService = {
     });
     formData.append('imageType', imageType);
     if (imageType != 'avatar') {
-      formData.append(groupId)
+      formData.append('groupId', groupId)
     }
 
     try {
